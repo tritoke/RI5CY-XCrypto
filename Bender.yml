@@ -2,7 +2,7 @@ package:
   name: riscv
 
 dependencies:
-  fpnew: { git: "https://github.com/pulp-platform/fpnew.git", rev: fix-bender }
+  fpnew: { git: "https://github.com/pulp-platform/fpnew.git", rev: c11bed1bc53816517cc90f4db82710e3202122e2 }
   tech_cells_generic: { git: "https://github.com/pulp-platform/tech_cells_generic.git", version: 0.1.1 }
 
 sources:
