@@ -17,7 +17,8 @@ module top
 #(
   parameter INSTR_RDATA_WIDTH = 128,
   parameter ADDR_WIDTH = 22,
-  parameter BOOT_ADDR  = 'h80		// Consistent with Pulpino
+  parameter BOOT_ADDR  = 'h80,		// Consistent with Pulpino
+  parameter XPU        = 1  // enabling XCrypto
   )
 (
  // Clock and Reset
@@ -69,7 +70,8 @@ module top
 
    riscv_core
      #(
-       .INSTR_RDATA_WIDTH (INSTR_RDATA_WIDTH)
+       .INSTR_RDATA_WIDTH (INSTR_RDATA_WIDTH),
+       .XPU               (XPU)
        )
    riscv_core_i
      (

@@ -35,7 +35,9 @@ module register_file_test_wrap
 #(
    parameter ADDR_WIDTH    = 5,
    parameter DATA_WIDTH    = 32,
-   parameter FPU           = 0
+   parameter FPU           = 0,
+
+   parameter XPU           = 0 // XCrypto
 )
 (
    // Clock and Reset
@@ -66,6 +68,10 @@ module register_file_test_wrap
    input  logic [ADDR_WIDTH-1:0]   waddr_b_i,
    input  logic [DATA_WIDTH-1:0]   wdata_b_i,
    input  logic                    we_b_i,
+
+   // XCrypto signals
+   input logic                     cprs_init,
+   output logic                    cprs_init_done,
 
    // BIST ENABLE
    input  logic                    BIST,
@@ -128,7 +134,10 @@ module register_file_test_wrap
    #(
       .ADDR_WIDTH ( ADDR_WIDTH          ), // = 5,
       .DATA_WIDTH ( DATA_WIDTH          ), // = 32,
-      .FPU        ( FPU                 ) // = 0
+      .FPU        ( FPU                 ), // = 0
+
+      // XCrypto
+      .XPU        ( XPU                 ) // = 0
    )
    riscv_register_file_i
    (
@@ -155,9 +164,5 @@ module register_file_test_wrap
       .wdata_b_i  ( WriteData_b_muxed   ),
       .we_b_i     ( WriteEnable_b_muxed )
    );
-
-
-
-
 
 endmodule

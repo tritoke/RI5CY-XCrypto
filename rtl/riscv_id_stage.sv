@@ -52,7 +52,9 @@ module riscv_id_stage
   parameter APU_NARGS_CPU     =  3,
   parameter APU_WOP_CPU       =  6,
   parameter APU_NDSFLAGS_CPU  = 15,
-  parameter APU_NUSFLAGS_CPU  =  5
+  parameter APU_NUSFLAGS_CPU  =  5,
+
+  parameter XPU               =  0 // XCrypto
 )
 (
     input  logic        clk,
@@ -243,6 +245,24 @@ module riscv_id_stage
     output logic        perf_jr_stall_o,      // jump-register-hazard
     output logic        perf_ld_stall_o,      // load-use-hazard
     output logic        perf_pipeline_stall_o //extra cycles from elw
+
+    // XCrypto signals
+//  output logic [ 8:0] id_class,                 // Instruction class.
+//  output logic [15:0] id_subclass,              // Instruction subclass.
+//  output logic        id_cprs_init,             // An init instruction is executing.
+
+//  output logic [ 2:0] id_pw,                    // Instruction pack width.
+//  output logic [ 3:0] id_crs1,                  // Instruction source register 1
+//  output logic [ 3:0] id_crs2,                  // Instruction source register 2
+//  output logic [ 3:0] id_crs3,                  // Instruction source register 3
+//  output logic [ 3:0] id_crd,                   // Instruction destination register
+//  output logic [ 3:0] id_crd1,                  // MP Instruction destination register 1
+//  output logic [ 3:0] id_crd2,                  // MP Instruction destination register 2
+//  output logic [ 4:0] id_rd,                    // GPR destination register
+//  output logic [ 4:0] id_rs1,                   // GPR source register
+//  output logic [31:0] id_imm,                   // Decoded immediate.
+//  output logic        id_wb_h,                  // Halfword index (load/store)
+//  output logic        id_wb_b                   // Byte index (load/store)
 );
 
   logic [31:0] instr;
@@ -363,6 +383,10 @@ module riscv_id_stage
   logic [WAPUTYPE-1:0]        apu_flags_src;
   logic                       apu_stall;
   logic [2:0]                 fp_rnd_mode;
+
+  // XCrypto signals
+  logic id_cprs_init;
+  logic cprs_init_done;
 
   // Register Write Control
   logic        regfile_we_id;
@@ -927,8 +951,10 @@ module riscv_id_stage
   
   register_file_test_wrap
   #(
-    .ADDR_WIDTH(6),
-    .FPU(FPU)
+    .ADDR_WIDTH(7),
+    .FPU(FPU),
+
+    .XPU(XPU) // XCrypto
   )
   registers_i
   (
@@ -960,6 +986,10 @@ module riscv_id_stage
     .waddr_b_i          ( (dbg_reg_wreq_i == 1'b0) ? regfile_alu_waddr_fw_i : dbg_reg_waddr_i ),
     .wdata_b_i          ( (dbg_reg_wreq_i == 1'b0) ? regfile_alu_wdata_fw_i : dbg_reg_wdata_i ),
     .we_b_i             ( (dbg_reg_wreq_i == 1'b0) ? regfile_alu_we_fw_i    : 1'b1            ),
+
+    // xc.init instruction is executing
+    .cprs_init          ( id_cprs_init   ),
+    .cprs_init_done     ( cprs_init_done ),
 
      // BIST ENABLE
      .BIST        ( 1'b0                ), // PLEASE CONNECT ME;
@@ -993,7 +1023,8 @@ module riscv_id_stage
       .SHARED_INT_DIV      ( SHARED_INT_DIV       ),
       .SHARED_FP_DIVSQRT   ( SHARED_FP_DIVSQRT    ),
       .WAPUTYPE            ( WAPUTYPE             ),
-      .APU_WOP_CPU         ( APU_WOP_CPU          )
+      .APU_WOP_CPU         ( APU_WOP_CPU          ),
+      .XPU                 ( XPU                  )
       )
   decoder_i
   (
@@ -1086,7 +1117,10 @@ module riscv_id_stage
     // jump/branches
     .jump_in_dec_o                   ( jump_in_dec               ),
     .jump_in_id_o                    ( jump_in_id                ),
-    .jump_target_mux_sel_o           ( jump_target_mux_sel       )
+    .jump_target_mux_sel_o           ( jump_target_mux_sel       ),
+
+    // XCrypto instructions
+    .id_cprs_init                    ( id_cprs_init )
 
   );
 

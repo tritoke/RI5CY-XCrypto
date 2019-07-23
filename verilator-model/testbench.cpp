@@ -172,6 +172,7 @@ void loadProgram()
 {
   uint32_t addr = 0x80;
   uint32_t repeat_factor = 20;
+
   for (size_t i = 0; i < repeat_factor; i++)
   {
     cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x93);
@@ -191,6 +192,11 @@ void loadProgram()
 
     addr += 0xC;
   }
+
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x11);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x10);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x2b);
 
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x93);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x05);

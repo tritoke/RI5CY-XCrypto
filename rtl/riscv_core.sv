@@ -49,7 +49,9 @@ module riscv_core
   parameter APU_NARGS_CPU       =  3,
   parameter APU_WOP_CPU         =  6,
   parameter APU_NDSFLAGS_CPU    = 15,
-  parameter APU_NUSFLAGS_CPU    =  5
+  parameter APU_NUSFLAGS_CPU    =  5,
+
+  parameter XPU                 =  1  // XCrypto
 )
 (
   // Clock and Reset
@@ -251,6 +253,8 @@ module riscv_core
   logic [31:0] csr_rdata;
   logic [31:0] csr_wdata;
   PrivLvl_t    current_priv_lvl;
+
+
 
   // Data Memory Control:  From ID stage (id-ex pipe) <--> load store unit
   logic        data_we_ex;
@@ -540,7 +544,9 @@ module riscv_core
     .APU_NARGS_CPU                ( APU_NARGS_CPU        ),
     .APU_WOP_CPU                  ( APU_WOP_CPU          ),
     .APU_NDSFLAGS_CPU             ( APU_NDSFLAGS_CPU     ),
-    .APU_NUSFLAGS_CPU             ( APU_NUSFLAGS_CPU     )
+    .APU_NUSFLAGS_CPU             ( APU_NUSFLAGS_CPU     ),
+
+    .XPU                          ( XPU                  )
   )
   id_stage_i
   (
