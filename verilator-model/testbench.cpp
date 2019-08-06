@@ -24,6 +24,9 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
+
+#include "scarv_cop_common.h"
 
 using std::cout;
 using std::cerr;
@@ -55,525 +58,113 @@ Vtop *cpu;
 VerilatedVcdC * tfp;
 bool passed = true;
 
+/* Test cases for subclass decoding */
+
+typedef struct {
+  uint32_t mask;
+  uint32_t instr;
+  uint32_t subclass;
+  std::string signal;
+  std::string mnemonic;
+} decode_testcase;
+
+std::vector<decode_testcase> decode_testcases = {
+  { 0xfff8707f, 0x1000002b, SCARV_COP_SCLASS_XCR2GPR,       "dec_xcr2gpr",       "xc.xcr2gpr",       },
+  { 0xfff0787f, 0x1100002b, SCARV_COP_SCLASS_GPR2XCR,       "dec_gpr2xcr",       "xc.gpr2xcr",       },
+  { 0xfff87fff, 0x0800002b, SCARV_COP_SCLASS_RSEED,         "dec_rngseed",       "xc.rngseed",       },
+  { 0xfffff87f, 0x0810082b, SCARV_COP_SCLASS_RSAMP,         "dec_rngsamp",       "xc.dec_rngsamp",   },
+  { 0xfffff07f, 0x0820002b, SCARV_COP_SCLASS_RTEST,         "dec_rngtest",       "xc.rngtest",       },
+  { 0xff08787f, 0x1800082b, SCARV_COP_SCLASS_CMOV_T,        "dec_cmov_t",        "xc.cmov_t",        },
+  { 0xff08787f, 0x1800002b, SCARV_COP_SCLASS_CMOV_F,        "dec_cmov_f",        "xc.cmov_f",        },
+  { 0x1f08787f, 0x0600002b, SCARV_COP_SCLASS_PADD,          "dec_padd",          "xc.padd",          },
+  { 0x1f08787f, 0x0600082b, SCARV_COP_SCLASS_PSUB,          "dec_psub",          "xc.psub",          },
+  { 0x1f08787f, 0x0e00002b, SCARV_COP_SCLASS_PMUL_L,        "dec_pmul_l",        "xc.pmul_l",        },
+  { 0x1f08787f, 0x0e00082b, SCARV_COP_SCLASS_PMUL_H,        "dec_pmul_h",        "xc.pmul_h",        },
+  { 0x1f08787f, 0x0e08002b, SCARV_COP_SCLASS_PCLMUL_L,      "dec_pclmul_l",      "xc.pclmul_l",      },
+  { 0x1f08787f, 0x0e08082b, SCARV_COP_SCLASS_PCLMUL_H,      "dec_pclmul_h",      "xc.pclmul_h",      },
+  { 0x1f08787f, 0x1600002b, SCARV_COP_SCLASS_PSLL,          "dec_psll",          "xc.psll",          },
+  { 0x1f08787f, 0x1600082b, SCARV_COP_SCLASS_PSRL,          "dec_psrl",          "xc.psrl",          },
+  { 0x1f08787f, 0x1608082b, SCARV_COP_SCLASS_PROT,          "dec_prot",          "xc.prot",          },
+  { 0x1e08787f, 0x1e00002b, SCARV_COP_SCLASS_PSLL_I,        "dec_psll_i",        "xc.psll_i",        },
+  { 0x1e08787f, 0x1e00082b, SCARV_COP_SCLASS_PSRL_I,        "dec_psrl_i",        "xc.psrl_i",        },
+  { 0x1e08787f, 0x1e08082b, SCARV_COP_SCLASS_PROT_I,        "dec_prot_i",        "xc.prot_i",        },
+  { 0x3e00707f, 0x0c00002b, SCARV_COP_SCLASS_SHA3_XY,       "dec_sha3_xy",       "xc.sha3_xy",       },
+  { 0x3e00707f, 0x1400002b, SCARV_COP_SCLASS_SHA3_X1,       "dec_sha3_x1",       "xc.sha3_x1",       },
+  { 0x3e00707f, 0x2400002b, SCARV_COP_SCLASS_SHA3_X2,       "dec_sha3_x2",       "xc.sha3_x2",       },
+  { 0x3e00707f, 0x1c00002b, SCARV_COP_SCLASS_SHA3_X4,       "dec_sha3_x4",       "xc.sha3_x4",       },
+  { 0x3e00707f, 0x3400002b, SCARV_COP_SCLASS_SHA3_YX,       "dec_sha3_yx",       "xc.sha3_yx",       },
+  { 0xff08787f, 0x0400002b, SCARV_COP_SCLASS_AESSUB_ENC,    "dec_aessub_enc",    "xc.aessub_enc",    },
+  { 0xff08787f, 0x0400082b, SCARV_COP_SCLASS_AESSUB_ENCROT, "dec_aessub_encrot", "xc.aessub_encrot", },
+  { 0xff08787f, 0x0408002b, SCARV_COP_SCLASS_AESSUB_DEC,    "dec_aessub_dec",    "xc.aessub_dec",    },
+  { 0xff08787f, 0x0408082b, SCARV_COP_SCLASS_AESSUB_DECROT, "dec_aessub_decrot", "xc.aessub_decrot", },
+  { 0xff08787f, 0x0500002b, SCARV_COP_SCLASS_AESMIX_ENC,    "dec_aesmix_enc",    "xc.aesmix_enc",    },
+  { 0xff08787f, 0x0508002b, SCARV_COP_SCLASS_AESMIX_DEC,    "dec_aesmix_dec",    "xc.aesmix_dec",    },
+  { 0x3e00787f, 0x0200002b, SCARV_COP_SCLASS_LDR_B,         "dec_ldr_bu",        "xc.ldr_bu",        },
+  { 0x3e00787f, 0x1200002b, SCARV_COP_SCLASS_LDR_H,         "dec_ldr_hu",        "xc.ldr_hu",        },
+  { 0xfe00787f, 0x2200002b, SCARV_COP_SCLASS_LDR_W,         "dec_ldr_w",         "xc.ldr_w",         },
+  { 0x3e00787f, 0x0200082b, SCARV_COP_SCLASS_STR_B,         "dec_str_b",         "xc.str_b",         },
+  { 0x3e00787f, 0x1200082b, SCARV_COP_SCLASS_STR_H,         "dec_str_h",         "xc.str_h",         },
+  { 0xfe00787f, 0x2200082b, SCARV_COP_SCLASS_STR_W,         "dec_str_w",         "xc.str_w",         },
+  { 0xff00787f, 0x0a00082b, SCARV_COP_SCLASS_SCATTER_B,     "dec_scatter_b",     "xc.scatter_b",     },
+  { 0xff00787f, 0x0a00002b, SCARV_COP_SCLASS_GATHER_B,      "dec_gather_b",      "xc.gather_b",      },
+  { 0xff00787f, 0x0b00082b, SCARV_COP_SCLASS_SCATTER_H,     "dec_scatter_h",     "xc.scatter_h",     },
+  { 0xff00787f, 0x0b00002b, SCARV_COP_SCLASS_GATHER_H,      "dec_gather_h",      "xc.gather_h",      },
+  { 0x0008787f, 0x0000682b, SCARV_COP_SCLASS_BOP,           "dec_bop",           "xc.bop",           },
+  { 0xf000707f, 0x0000702b, SCARV_COP_SCLASS_MEQU,          "dec_mequ",          "xc.mequ",          },
+  { 0xf000707f, 0x1000702b, SCARV_COP_SCLASS_MLTE,          "dec_mlte",          "xc.mlte",          },
+  { 0xf000707f, 0x2000702b, SCARV_COP_SCLASS_MGTE,          "dec_mgte",          "xc.mgte",          },
+  { 0xf008787f, 0x3008702b, SCARV_COP_SCLASS_LUT,           "dec_lut",           "xc.lut",           },
+  { 0xf0087c7f, 0x4000702b, SCARV_COP_SCLASS_MADD_3,        "dec_madd_3",        "xc.madd_3",        },
+  { 0xf0087c7f, 0x6000702b, SCARV_COP_SCLASS_MSUB_3,        "dec_msub_3",        "xc.msub_3",        },
+  { 0xff087c7f, 0x5000702b, SCARV_COP_SCLASS_MADD_2,        "dec_madd_2",        "xc.madd_2",        },
+  { 0xff087c7f, 0x5100702b, SCARV_COP_SCLASS_MSUB_2,        "dec_msub_2",        "xc.msub_2",        },
+  { 0xff087c7f, 0x5200702b, SCARV_COP_SCLASS_MACC_2,        "dec_macc_2",        "xc.macc_2",        },
+  { 0xfff87c7f, 0x5f00702b, SCARV_COP_SCLASS_MACC_1,        "dec_macc_1",        "xc.macc_1",        },
+  { 0xf0087c7f, 0x7000782b, SCARV_COP_SCLASS_MSLL,          "dec_msll",          "xc.msll",          },
+  { 0xf0087c7f, 0x8000782b, SCARV_COP_SCLASS_MSRL,          "dec_msrl",          "xc.msrl",          },
+  { 0xf0087c7f, 0x9000782b, SCARV_COP_SCLASS_MMUL_3,        "dec_mmul_3",        "xc.mmul_3",        },
+  { 0xf0087c7f, 0xa000782b, SCARV_COP_SCLASS_MCLMUL_3,      "dec_mclmul_3",      "xc.mclmul_3",      },
+  { 0xc0087c7f, 0xc000742b, SCARV_COP_SCLASS_MSLL_I,        "dec_msll_i",        "xc.msll_i",        },
+  { 0xc0087c7f, 0x8000742b, SCARV_COP_SCLASS_MSRL_I,        "dec_msrl_i",        "xc.msrl_i",        },
+  { 0x0000707f, 0x0000102b, SCARV_COP_SCLASS_LB_CR,         "dec_ld_bu",         "xc.ld_bu",         },
+  { 0x0010707f, 0x0000202b, SCARV_COP_SCLASS_LH_CR,         "dec_ld_hu",         "xc.ld_hu",         },
+  { 0x0010787f, 0x0000302b, SCARV_COP_SCLASS_LD_W,          "dec_ld_w",          "xc.ld_w",          },
+  { 0x0010787f, 0x0010302b, SCARV_COP_SCLASS_LD_HIU,        "dec_ld_hiu",        "xc.ld_hiu",        },
+  { 0x0010787f, 0x0010382b, SCARV_COP_SCLASS_LD_LIU,        "dec_ld_liu",        "xc.ld_liu",        },
+  { 0x07f8787f, 0x0010202b, SCARV_COP_SCLASS_PERM_IBIT,     "dec_ipbit",         "xc.ipbit",         },
+  { 0x07f8787f, 0x0010282b, SCARV_COP_SCLASS_PERM_BIT,      "dec_pbit",          "xc.pbit",          },
+  { 0x00f8787f, 0x0030202b, SCARV_COP_SCLASS_PERM_BYTE,     "dec_pbyte",         "xc.pbyte",         },
+  { 0x0038787f, 0x0030282b, SCARV_COP_SCLASS_INS,           "dec_ins",           "xc.ins",           },
+  { 0x0038787f, 0x0038202b, SCARV_COP_SCLASS_BMV,           "dec_bmv",           "xc.bmv",           },
+  { 0x0038787f, 0x0038282b, SCARV_COP_SCLASS_EXT,           "dec_ext",           "xc.ext",           },
+  { 0x0000707f, 0x0000402b, SCARV_COP_SCLASS_ST_B,          "dec_st_b",          "xc.st_b",          },
+  { 0x0100707f, 0x0000502b, SCARV_COP_SCLASS_ST_H,          "dec_st_h",          "xc.st_h",          },
+  { 0x0100787f, 0x0000602b, SCARV_COP_SCLASS_ST_W,          "dec_st_w",          "xc.st_w",          },
+};
+
+/* Check that invariants hold. To be called on every clock cycle. */
 void checkProperties(void) {
-  #include "scarv_cop_common.h"
   auto idecode = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i;
   uint32_t encoded = idecode->read_encoded();
-  if ((encoded & 0xFFFFFFFF) == 0x1110082B) { // xc.init
-    uint32_t init = idecode->read_id_cprs_init();
-    if (!init) {
-      std::cout << "Init not asserted for xc.init." << std::endl;
-      passed = false;
-    }
-  }
-
-  uint32_t subclass_aes = idecode->read_subclass_aes();
-  uint32_t subclass_bitwise = idecode->read_subclass_bitwise();
-  uint32_t subclass_load_store = idecode->read_subclass_load_store();
-  uint32_t subclass_move = idecode->read_subclass_move();
-  uint32_t subclass_mp = idecode->read_subclass_mp();
-  uint32_t subclass_palu = idecode->read_subclass_palu();
-  uint32_t subclass_permute = idecode->read_subclass_permute();
-  uint32_t subclass_random = idecode->read_subclass_random();
-  uint32_t subclass_sha3 = idecode->read_subclass_sha3();
-
-  if ((encoded & 0xfff8707f) == 0x1000002b) {
-    if (!(subclass_move&(1<<SCARV_COP_SCLASS_XCR2GPR))) {
-      std::cout << "dec_xcr2gpr not asserted for xc.xcr2gpr" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfff0787f) == 0x1100002b) {
-    if (!(subclass_move & (1<<SCARV_COP_SCLASS_GPR2XCR))) {
-      std::cout << "dec_gpr2xcr not asserted for xc.gpr2xcr" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfff87fff) == 0x800002b) {
-    if (!(subclass_random & (1<<SCARV_COP_SCLASS_RSEED))) {
-      std::cout << "dec_rngseed not asserted for xc.rngseed" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfffff87f) == 0x810082b) {
-    if (!(subclass_random & (1<<SCARV_COP_SCLASS_RSAMP))) {
-      std::cout << "dec_rngsamp not asserted for xc.dec_rngsamp" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfffff07f) == 0x820002b) {
-    if (!(subclass_random & (1<<SCARV_COP_SCLASS_RTEST))) {
-      std::cout << "dec_rngtest not asserted for xc.rngtest" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x1800082b) {
-    if (!(subclass_move & (1<<SCARV_COP_SCLASS_CMOV_T))) {
-      std::cout << "dec_cmov_t not asserted for xc.cmov_t" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x1800002b) {
-    if (!(subclass_move & (1<<SCARV_COP_SCLASS_CMOV_F))) {
-      std::cout << "dec_cmov_f not asserted for xc.cmov_f" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0x600002b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PADD))) {
-      std::cout << "dec_padd not asserted for xc.padd" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0x600082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PSUB))) {
-      std::cout << "dec_psub not asserted for xc.psub" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0xe00002b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PMUL_L))) {
-      std::cout << "dec_pmul_l not asserted for xc.pmul_l" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0xe00082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PMUL_H))) {
-      std::cout << "dec_pmul_h not asserted for xc.pmul_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0xe08002b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PCLMUL_L))) {
-      std::cout << "dec_pclmul_l not asserted for xc.pclmul_l" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0xe08082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PCLMUL_H))) {
-      std::cout << "dec_pclmul_h not asserted for xc.pclmul_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0x1600002b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PSLL))) {
-      std::cout << "dec_psll not asserted for xc.psll" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0x1600082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PSRL))) {
-      std::cout << "dec_psrl not asserted for xc.psrl" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1f08787f) == 0x1608082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PROT))) {
-      std::cout << "dec_prot not asserted for xc.prot" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1e08787f) == 0x1e00002b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PSLL_I))) {
-      std::cout << "dec_psll_i not asserted for xc.psll_i" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1e08787f) == 0x1e00082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PSRL_I))) {
-      std::cout << "dec_psrl_i not asserted for xc.psrl_i" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x1e08787f) == 0x1e08082b) {
-    if (!(subclass_palu & (1<<SCARV_COP_SCLASS_PROT_I))) {
-      std::cout << "dec_prot_i not asserted for xc.prot_i" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00707f) == 0xc00002b) {
-    if (!(subclass_sha3 & (1<<SCARV_COP_SCLASS_SHA3_XY))) {
-      std::cout << "dec_sha3_xy not asserted for xc.sha3_xy" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00707f) == 0x1400002b) {
-    if (!(subclass_sha3 & (1<<SCARV_COP_SCLASS_SHA3_X1))) {
-      std::cout << "dec_sha3_x1 not asserted for xc.sha3_x1" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00707f) == 0x2400002b) {
-    if (!(subclass_sha3 & (1<<SCARV_COP_SCLASS_SHA3_X2))) {
-      std::cout << "dec_sha3_x2 not asserted for xc.sha3_x2" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00707f) == 0x1c00002b) {
-    if (!(subclass_sha3 & (1<<SCARV_COP_SCLASS_SHA3_X4))) {
-      std::cout << "dec_sha3_x4 not asserted for xc.sha3_x4" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00707f) == 0x3400002b) {
-    if (!(subclass_sha3 & (1<<SCARV_COP_SCLASS_SHA3_YX))) {
-      std::cout << "dec_sha3_yx not asserted for xc.sha3_yx" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x400002b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESSUB_ENC))) {
-      std::cout << "dec_aessub_enc not asserted for xc.aessub_enc" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x400082b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESSUB_ENCROT))) {
-      std::cout << "dec_aessub_encrot not asserted for xc.aessub_encrot" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x408002b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESSUB_DEC))) {
-      std::cout << "dec_aessub_dec not asserted for xc.aessub_dec" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x408082b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESSUB_DECROT))) {
-      std::cout << "dec_aessub_decrot not asserted for xc.aessub_decrot" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x500002b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESMIX_ENC))) {
-      std::cout << "dec_aesmix_enc not asserted for xc.aesmix_enc" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff08787f) == 0x508002b) {
-    if (!(subclass_aes & (1<<SCARV_COP_SCLASS_AESMIX_DEC))) {
-      std::cout << "dec_aesmix_dec not asserted for xc.aesmix_dec" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00787f) == 0x200002b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LDR_B))) {
-      std::cout << "dec_ldr_bu not asserted for xc.ldr_bu" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00787f) == 0x1200002b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LDR_H))) {
-      std::cout << "dec_ldr_hu not asserted for xc.ldr_hu" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfe00787f) == 0x2200002b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LDR_W))) {
-      std::cout << "dec_ldr_w not asserted for xc.ldr_w" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00787f) == 0x200082b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_STR_B))) {
-      std::cout << "dec_str_b not asserted for xc.str_b" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x3e00787f) == 0x1200082b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_STR_H))) {
-      std::cout << "dec_str_h not asserted for xc.str_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfe00787f) == 0x2200082b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_STR_W))) {
-      std::cout << "dec_str_w not asserted for xc.str_w" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff00787f) == 0xa00082b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_SCATTER_B))) {
-      std::cout << "dec_scatter_b not asserted for xc.scatter_b" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff00787f) == 0xa00002b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_GATHER_B))) {
-      std::cout << "dec_gather_b not asserted for xc.gather_b" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff00787f) == 0xb00082b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_SCATTER_H))) {
-      std::cout << "dec_scatter_h not asserted for xc.scatter_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff00787f) == 0xb00002b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_GATHER_H))) {
-      std::cout << "dec_gather_h not asserted for xc.gather_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x8787f) == 0x682b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_BOP))) {
-      std::cout << "dec_bop not asserted for xc.bop" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf000707f) == 0x702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MEQU))) {
-      std::cout << "dec_mequ not asserted for xc.mequ" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf000707f) == 0x1000702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MLTE))) {
-      std::cout << "dec_mlte not asserted for xc.mlte" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf000707f) == 0x2000702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MGTE))) {
-      std::cout << "dec_mgte not asserted for xc.mgte" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf008787f) == 0x3008702b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_LUT))) {
-      std::cout << "dec_lut not asserted for xc.lut" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0x4000702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MADD_3))) {
-      std::cout << "dec_madd_3 not asserted for xc.madd_3" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0x6000702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSUB_3))) {
-      std::cout << "dec_msub_3 not asserted for xc.msub_3" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff087c7f) == 0x5000702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MADD_2))) {
-      std::cout << "dec_madd_2 not asserted for xc.madd_2" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff087c7f) == 0x5100702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSUB_2))) {
-      std::cout << "dec_msub_2 not asserted for xc.msub_2" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xff087c7f) == 0x5200702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MACC_2))) {
-      std::cout << "dec_macc_2 not asserted for xc.macc_2" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xfff87c7f) == 0x5f00702b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MACC_1))) {
-      std::cout << "dec_macc_1 not asserted for xc.macc_1" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0x7000782b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSLL))) {
-      std::cout << "dec_msll not asserted for xc.msll" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0x8000782b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSRL))) {
-      std::cout << "dec_msrl not asserted for xc.msrl" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0x9000782b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MMUL_3))) {
-      std::cout << "dec_mmul_3 not asserted for xc.mmul_3" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf0087c7f) == 0xa000782b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MCLMUL_3))) {
-      std::cout << "dec_mclmul_3 not asserted for xc.mclmul_3" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xc0087c7f) == 0xc000742b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSLL_I))) {
-      std::cout << "dec_msll_i not asserted for xc.msll_i" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xc0087c7f) == 0x8000742b) {
-    if (!(subclass_mp & (1<<SCARV_COP_SCLASS_MSRL_I))) {
-      std::cout << "dec_msrl_i not asserted for xc.msrl_i" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x707f) == 0x102b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LB_CR))) {
-      std::cout << "dec_ld_bu not asserted for xc.ld_bu" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x10707f) == 0x202b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LH_CR))) {
-      std::cout << "dec_ld_hu not asserted for xc.ld_hu" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x10787f) == 0x302b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_LD_W))) {
-      std::cout << "dec_ld_w not asserted for xc.ld_w" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x10787f) == 0x10302b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_LD_HIU))) {
-      std::cout << "dec_ld_hiu not asserted for xc.ld_hiu" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x10787f) == 0x10382b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_LD_LIU))) {
-      std::cout << "dec_ld_liu = not asserted for xc.ld_liu =" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x7f8787f) == 0x10202b) {
-    if (!(subclass_permute & (1<<SCARV_COP_SCLASS_PERM_IBIT))) {
-      std::cout << "dec_ipbit not asserted for xc.ipbit" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x7f8787f) == 0x10282b) {
-    if (!(subclass_permute & (1<<SCARV_COP_SCLASS_PERM_BIT))) {
-      std::cout << "dec_pbit not asserted for xc.pbit" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0xf8787f) == 0x30202b) {
-    if (!(subclass_permute & (1<<SCARV_COP_SCLASS_PERM_BYTE))) {
-      std::cout << "dec_pbyte not asserted for xc.pbyte" << std::endl;
-      passed = false;
-    }
-  }
+  uint32_t id_subclass = idecode->read_id_subclass();
 
-  if ((encoded & 0x38787f) == 0x30282b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_INS))) {
-      std::cout << "dec_ins not asserted for xc.ins" << std::endl;
+  /* Check xc.init asserts id_cprs_init */
+  if (encoded == 0x1110082B) {
+    if (!idecode->read_id_cprs_init()) {
+      std::cout << "id_cprs_init not asserted for xc.init." << std::endl;
       passed = false;
     }
   }
 
-  if ((encoded & 0x38787f) == 0x38202b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_BMV))) {
-      std::cout << "dec_bmv not asserted for xc.bmv" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x38787f) == 0x38282b) {
-    if (!(subclass_bitwise & (1<<SCARV_COP_SCLASS_EXT))) {
-      std::cout << "dec_ext not asserted for xc.ext" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x707f) == 0x402b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_ST_B))) {
-      std::cout << "dec_st_b not asserted for xc.st_b" << std::endl;
-      passed = false;
+  /* Test subclass signals correctly asserted for each instruction */
+  for (auto& t: decode_testcases) {
+    if ((encoded & t.mask) == t.instr) {
+      if (! (id_subclass & (1 << t.subclass))) {
+        std::cout << t.signal << " not asserted for " << t.mnemonic << std::endl;
+        passed = false;
+      }
     }
   }
-
-  if ((encoded & 0x100707f) == 0x502b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_ST_H))) {
-      std::cout << "dec_st_h not asserted for xc.st_h" << std::endl;
-      passed = false;
-    }
-  }
-
-  if ((encoded & 0x100787f) == 0x602b) {
-    if (!(subclass_load_store & (1<<SCARV_COP_SCLASS_ST_W))) {
-      std::cout << "dec_st_w not asserted for xc.st_w" << std::endl;
-      passed = false;
-    }
-  }
-
 }
 
 // Clock the CPU for a given number of cycles, dumping to the trace file at
@@ -592,7 +183,6 @@ void clockSpin(uint32_t cycles)
     tfp->dump (cpuTime);
     mCycleCnt++;
     checkProperties();
-    //std::cout << "XCrypto illegal: " << cpu->top->riscv_core_i->id_stage_i->decoder_i->read_xcrypto_illegal() << std::endl;
   }
 }
 
