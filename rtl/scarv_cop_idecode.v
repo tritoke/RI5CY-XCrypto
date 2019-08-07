@@ -350,7 +350,7 @@ function read_id_cprs_init;
   end
 endfunction
 
-assign id_cprs_init = !dec_init;
+assign id_cprs_init = dec_init;
 
 //
 // Immediate decoding

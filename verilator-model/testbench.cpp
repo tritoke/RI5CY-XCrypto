@@ -56,11 +56,20 @@ VerilatedVcdC * tfp;
 bool passed = true;
 
 void checkProperties(void) {
-  uint32_t encoded = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i->read_encoded();
-  if (encoded == 0x1110082B) { // xc.init
-    uint32_t init = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i->read_id_cprs_init();
+  auto idecode = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i;
+  uint32_t encoded = idecode->read_encoded();
+  if ((encoded & 0xFFFFFFFF) == 0x1110082B) { // xc.init
+    uint32_t init = idecode->read_id_cprs_init();
     if (!init) {
       std::cout << "Init not asserted for xc.init." << std::endl;
+      passed = false;
+    }
+  }
+
+  if ((encoded & 0XFFF87FFF) == 0x0800002B) { // xc.rngseed
+    uint32_t subclass_random = idecode->read_subclass_random();
+    if (!subclass_random) {
+      std::cout << "subclass_random not asserted for xc.rngseed." << std::endl;
       passed = false;
     }
   }
@@ -149,15 +158,15 @@ void loadProgram()
 {
   uint32_t addr = 0x80;
 
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x2b);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x08);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x10);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x11);
-
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x10);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x11);
+
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x08);
 
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x2b);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x00);
