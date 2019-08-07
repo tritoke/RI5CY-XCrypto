@@ -162,7 +162,10 @@ module register_file_test_wrap
 
       .waddr_b_i  ( WriteAddr_b_muxed   ),
       .wdata_b_i  ( WriteData_b_muxed   ),
-      .we_b_i     ( WriteEnable_b_muxed )
+      .we_b_i     ( WriteEnable_b_muxed ),
+
+      .cprs_init      ( cprs_init       ),
+      .cprs_init_done ( cprs_init_done  )
    );
 
 endmodule

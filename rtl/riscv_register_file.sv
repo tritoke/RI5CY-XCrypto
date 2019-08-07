@@ -110,7 +110,7 @@ module riscv_register_file
   //-----------------------------------------------------------------------------
   //-- XPU Register file enable:
   //-----------------------------------------------------------------------------
-  assign xregfile_ena = XPU;
+  assign xcregfile_ena = XPU;
 
   //-----------------------------------------------------------------------------
   //-- READ : Read address decoder RAD
@@ -120,9 +120,9 @@ module riscv_register_file
     assign rdata_b_o = (fregfile_ena & raddr_b_i[5]) ? mem_fp[raddr_b_i[4:0]] : mem[raddr_b_i[4:0]];
     assign rdata_c_o = (fregfile_ena & raddr_c_i[5]) ? mem_fp[raddr_c_i[4:0]] : mem[raddr_c_i[4:0]];
   end else if ((FPU == 0) & (XPU == 1)) begin // XPU regs
-    assign rdata_a_o = (xregfile_ena & raddr_a_i[6]) ? mem_xc[raddr_a_i[3:0]] : mem[raddr_a_i[4:0]];
-    assign rdata_b_o = (xregfile_ena & raddr_b_i[6]) ? mem_xc[raddr_b_i[3:0]] : mem[raddr_b_i[4:0]];
-    assign rdata_c_o = (xregfile_ena & raddr_c_i[6]) ? mem_xc[raddr_c_i[3:0]] : mem[raddr_c_i[4:0]];
+    assign rdata_a_o = (xcregfile_ena & raddr_a_i[6]) ? mem_xc[raddr_a_i[3:0]] : mem[raddr_a_i[4:0]];
+    assign rdata_b_o = (xcregfile_ena & raddr_b_i[6]) ? mem_xc[raddr_b_i[3:0]] : mem[raddr_b_i[4:0]];
+    assign rdata_c_o = (xcregfile_ena & raddr_c_i[6]) ? mem_xc[raddr_c_i[3:0]] : mem[raddr_c_i[4:0]];
   end else begin // int regs
     assign rdata_a_o = mem[raddr_a_i[4:0]];
     assign rdata_b_o = mem[raddr_b_i[4:0]];
@@ -134,9 +134,9 @@ module riscv_register_file
   //-----------------------------------------------------------------------------
 
   // Mask top bit but one bit of write address to disable fp regfile
-  assign waddr_a = {(xregfile_ena & waddr_a_i[6]), (fregfile_ena & waddr_a_i[5]), waddr_a_i[4:0]};
+  assign waddr_a = {(xcregfile_ena & waddr_a_i[6]), (fregfile_ena & waddr_a_i[5]), waddr_a_i[4:0]};
   // Mask top bit to disable xc regfile
-  assign waddr_b = {(xregfile_ena & waddr_b_i[6]), (fregfile_ena & waddr_b_i[5]), waddr_b_i[4:0]};
+  assign waddr_b = {(xcregfile_ena & waddr_b_i[6]), (fregfile_ena & waddr_b_i[5]), waddr_b_i[4:0]};
 
   always_comb
   begin : we_a_decoder

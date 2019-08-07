@@ -241,28 +241,28 @@ module riscv_id_stage
     input  logic        mult_multicycle_i,    // when we need multiple cycles in the multiplier and use op c as storage
 
     // Performance Counters
-    output logic        perf_jump_o,          // we are executing a jump instruction
-    output logic        perf_jr_stall_o,      // jump-register-hazard
-    output logic        perf_ld_stall_o,      // load-use-hazard
-    output logic        perf_pipeline_stall_o //extra cycles from elw
+    output logic        perf_jump_o,              // we are executing a jump instruction
+    output logic        perf_jr_stall_o,          // jump-register-hazard
+    output logic        perf_ld_stall_o,          // load-use-hazard
+    output logic        perf_pipeline_stall_o,    //extra cycles from elw
 
     // XCrypto signals
-//  output logic [ 8:0] id_class,                 // Instruction class.
-//  output logic [15:0] id_subclass,              // Instruction subclass.
-//  output logic        id_cprs_init,             // An init instruction is executing.
+    output logic [ 8:0] id_class,                 // Instruction class.
+    output logic [15:0] id_subclass,              // Instruction subclass.
+    output logic        id_cprs_init,             // An init instruction is executing.
 
-//  output logic [ 2:0] id_pw,                    // Instruction pack width.
-//  output logic [ 3:0] id_crs1,                  // Instruction source register 1
-//  output logic [ 3:0] id_crs2,                  // Instruction source register 2
-//  output logic [ 3:0] id_crs3,                  // Instruction source register 3
-//  output logic [ 3:0] id_crd,                   // Instruction destination register
-//  output logic [ 3:0] id_crd1,                  // MP Instruction destination register 1
-//  output logic [ 3:0] id_crd2,                  // MP Instruction destination register 2
-//  output logic [ 4:0] id_rd,                    // GPR destination register
-//  output logic [ 4:0] id_rs1,                   // GPR source register
-//  output logic [31:0] id_imm,                   // Decoded immediate.
-//  output logic        id_wb_h,                  // Halfword index (load/store)
-//  output logic        id_wb_b                   // Byte index (load/store)
+    output logic [ 2:0] id_pw,                    // Instruction pack width.
+    output logic [ 3:0] id_crs1,                  // Instruction source register 1
+    output logic [ 3:0] id_crs2,                  // Instruction source register 2
+    output logic [ 3:0] id_crs3,                  // Instruction source register 3
+    output logic [ 3:0] id_crd,                   // Instruction destination register
+    output logic [ 3:0] id_crd1,                  // MP Instruction destination register 1
+    output logic [ 3:0] id_crd2,                  // MP Instruction destination register 2
+    output logic [ 4:0] id_rd,                    // GPR destination register
+    output logic [ 4:0] id_rs1,                   // GPR source register
+    output logic [31:0] id_imm,                   // Decoded immediate.
+    output logic        id_wb_h,                  // Halfword index (load/store)
+    output logic        id_wb_b                   // Byte index (load/store)
 );
 
   logic [31:0] instr;
@@ -1120,8 +1120,21 @@ module riscv_id_stage
     .jump_target_mux_sel_o           ( jump_target_mux_sel       ),
 
     // XCrypto instructions
-    .id_cprs_init                    ( id_cprs_init )
-
+    .id_class                        ( id_class                  ), // Instruction class
+    .id_subclass                     ( id_subclass               ), // Instruction subclass
+    .id_cprs_init                    ( id_cprs_init              ), // An init instruction is executing.
+    .id_pw                           ( id_pw                     ), // Instruction pack width.
+    .id_crs1                         ( id_crs1                   ), // Instruction source register 1
+    .id_crs2                         ( id_crs2                   ), // Instruction source register 2
+    .id_crs3                         ( id_crs3                   ), // Instruction source register 3
+    .id_crd                          ( id_crd                    ), // Instruction destination register
+    .id_crd1                         ( id_crd1                   ), // MP Instruction destination register 1
+    .id_crd2                         ( id_crd2                   ), // MP Instruction destination register 2
+    .id_rd                           ( id_rd                     ), // GPR destination register
+    .id_rs1                          ( id_rs1                    ), // GPR source register
+    .id_imm                          ( id_imm                    ), // Decoded immediate.
+    .id_wb_h                         ( id_wb_h                   ), // Halfword index (load/store)
+    .id_wb_b                         ( id_wb_b                   )  // Byte index (load/store)
   );
 
   ////////////////////////////////////////////////////////////////////

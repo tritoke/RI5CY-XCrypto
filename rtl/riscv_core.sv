@@ -205,6 +205,24 @@ module riscv_core
   logic [C_FFLAG-1:0]         fflags_csr;
   logic                       fflags_we;
 
+  // XPU
+  logic [ 8:0] id_class;                 // Instruction class.
+  logic [15:0] id_subclass;              // Instruction subclass.
+  logic        id_cprs_init;             // An init instruction is executing.
+
+  logic [ 2:0] id_pw;                    // Instruction pack width.
+  logic [ 3:0] id_crs1;                  // Instruction source register 1
+  logic [ 3:0] id_crs2;                  // Instruction source register 2
+  logic [ 3:0] id_crs3;                  // Instruction source register 3
+  logic [ 3:0] id_crd;                   // Instruction destination register
+  logic [ 3:0] id_crd1;                  // MP Instruction destination register 1
+  logic [ 3:0] id_crd2;                  // MP Instruction destination register 2
+  logic [ 4:0] id_rd;                    // GPR destination register
+  logic [ 4:0] id_rs1;                   // GPR source register
+  logic [31:0] id_imm;                   // Decoded immediate.
+  logic        id_wb_h;                  // Halfword index (load/store)
+  logic        id_wb_b;                  // Byte index (load/store)
+
 
   // APU
   logic                        apu_en_ex;
@@ -734,7 +752,25 @@ module riscv_core
     .perf_jump_o                  ( perf_jump            ),
     .perf_jr_stall_o              ( perf_jr_stall        ),
     .perf_ld_stall_o              ( perf_ld_stall        ),
-    .perf_pipeline_stall_o        ( perf_pipeline_stall  )
+    .perf_pipeline_stall_o        ( perf_pipeline_stall  ),
+
+    // XCrypto instructions
+    .id_class                     ( id_class             ),  // Instruction class
+    .id_subclass                  ( id_subclass          ),  // Instruction subclass
+    .id_cprs_init                 ( id_cprs_init         ),  // An init instruction is executing.
+
+    .id_pw                        ( id_pw                ),  // Instruction pack width.
+    .id_crs1                      ( id_crs1              ),  // Instruction source register 1
+    .id_crs2                      ( id_crs2              ),  // Instruction source register 2
+    .id_crs3                      ( id_crs3              ),  // Instruction source register 3
+    .id_crd                       ( id_crd               ),  // Instruction destination register
+    .id_crd1                      ( id_crd1              ),  // MP Instruction destination register 1
+    .id_crd2                      ( id_crd2              ),  // MP Instruction destination register 2
+    .id_rd                        ( id_rd                ),  // GPR destination register
+    .id_rs1                       ( id_rs1               ),  // GPR source register
+    .id_imm                       ( id_imm               ),  // Decoded immediate.
+    .id_wb_h                      ( id_wb_h              ),  // Halfword index (load/store)
+    .id_wb_b                      ( id_wb_b              )   // Byte index (load/store)
   );
 
 

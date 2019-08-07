@@ -75,66 +75,68 @@ module top
        )
    riscv_core_i
      (
-      .clk_i                  ( clk_i                 ),
-      .rst_ni                 ( rstn_i                ),
+      .clk_i                  ( clk_i          ),
+      .rst_ni                 ( rstn_i         ),
 
-      .clock_en_i             ( '1                    ),
-      .test_en_i              ( '1                    ),
+      .clock_en_i             ( '1             ),
+      .test_en_i              ( '1             ),
 
-      .boot_addr_i            ( BOOT_ADDR             ),
-      .core_id_i              ( 4'h0                  ),
-      .cluster_id_i           ( 6'h0                  ),
+      .fregfile_disable_i     ( '0             ),
 
-      .instr_addr_o           ( instr_addr            ),
-      .instr_req_o            ( instr_req             ),
-      .instr_rdata_i          ( instr_rdata           ),
-      .instr_gnt_i            ( instr_gnt             ),
-      .instr_rvalid_i         ( instr_rvalid          ),
+      .boot_addr_i            ( BOOT_ADDR      ),
+      .core_id_i              ( 4'h0           ),
+      .cluster_id_i           ( 6'h0           ),
 
-      .data_addr_o            ( data_addr             ),
-      .data_wdata_o           ( data_wdata            ),
-      .data_we_o              ( data_we               ),
-      .data_req_o             ( data_req              ),
-      .data_be_o              ( data_be               ),
-      .data_rdata_i           ( data_rdata            ),
-      .data_gnt_i             ( data_gnt              ),
-      .data_rvalid_i          ( data_rvalid           ),
-      .data_err_i             ( 1'b0                  ),
+      .instr_addr_o           ( instr_addr     ),
+      .instr_req_o            ( instr_req      ),
+      .instr_rdata_i          ( instr_rdata    ),
+      .instr_gnt_i            ( instr_gnt      ),
+      .instr_rvalid_i         ( instr_rvalid   ),
 
-      .apu_master_req_o       (                       ),
-      .apu_master_ready_o     (                       ),
-      .apu_master_gnt_i       (                       ),
-      .apu_master_operands_o  (                       ),
-      .apu_master_op_o        (                       ),
-      .apu_master_type_o      (                       ),
-      .apu_master_flags_o     (                       ),
-      .apu_master_valid_i     (                       ),
-      .apu_master_result_i    (                       ),
-      .apu_master_flags_i     (                       ),
+      .data_addr_o            ( data_addr      ),
+      .data_wdata_o           ( data_wdata     ),
+      .data_we_o              ( data_we        ),
+      .data_req_o             ( data_req       ),
+      .data_be_o              ( data_be        ),
+      .data_rdata_i           ( data_rdata     ),
+      .data_gnt_i             ( data_gnt       ),
+      .data_rvalid_i          ( data_rvalid    ),
+      .data_err_i             ( 1'b0           ),
 
-      .irq_i                  ( irq_i                 ),
-      .irq_id_i               ( irq_id_i              ),
-      .irq_ack_o              ( irq_ack_o             ),
-      .irq_id_o               ( irq_id_o              ),
-      .irq_sec_i              ( irq_sec_i             ),
+      .apu_master_req_o       (                ),
+      .apu_master_ready_o     (                ),
+      .apu_master_gnt_i       (                ),
+      .apu_master_operands_o  (                ),
+      .apu_master_op_o        (                ),
+      .apu_master_type_o      (                ),
+      .apu_master_flags_o     (                ),
+      .apu_master_valid_i     (                ),
+      .apu_master_result_i    (                ),
+      .apu_master_flags_i     (                ),
 
-      .sec_lvl_o              ( sec_lvl_o             ),
+      .irq_i                  ( irq_i          ),
+      .irq_id_i               ( irq_id_i       ),
+      .irq_ack_o              ( irq_ack_o      ),
+      .irq_id_o               ( irq_id_o       ),
+      .irq_sec_i              ( irq_sec_i      ),
 
-      .debug_req_i            ( debug_req_i           ),
-      .debug_gnt_o            ( debug_gnt_o           ),
-      .debug_rvalid_o         ( debug_rvalid_o        ),
-      .debug_addr_i           ( debug_addr_i          ),
-      .debug_we_i             ( debug_we_i            ),
-      .debug_wdata_i          ( debug_wdata_i         ),
-      .debug_rdata_o          ( debug_rdata_o         ),
-      .debug_halted_o         ( debug_halted_o        ),
-      .debug_halt_i           ( 1'b0                  ),     // Not used in
-      .debug_resume_i         ( 1'b0                  ),     // single core
+      .sec_lvl_o              ( sec_lvl_o      ),
 
-      .fetch_enable_i         ( fetch_enable_i        ),
-      .core_busy_o            ( core_busy_o           ),
+      .debug_req_i            ( debug_req_i    ),
+      .debug_gnt_o            ( debug_gnt_o    ),
+      .debug_rvalid_o         ( debug_rvalid_o ),
+      .debug_addr_i           ( debug_addr_i   ),
+      .debug_we_i             ( debug_we_i     ),
+      .debug_wdata_i          ( debug_wdata_i  ),
+      .debug_rdata_o          ( debug_rdata_o  ),
+      .debug_halted_o         ( debug_halted_o ),
+      .debug_halt_i           ( 1'b0           ),     // Not used in
+      .debug_resume_i         ( 1'b0           ),     // single core
 
-      .ext_perf_counters_i    (                       )
+      .fetch_enable_i         ( fetch_enable_i ),
+      .core_busy_o            ( core_busy_o    ),
+
+      .ext_perf_counters_i    (                )
       );
 
    // Instantiate the memory
