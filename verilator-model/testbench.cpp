@@ -60,15 +60,16 @@ void clockSpin(uint32_t cycles)
 {
   for (uint32_t i = 0; i < cycles; i++)
   {
-      cpu->clk_i = 0;
-      cpu->eval ();
-      cpuTime += 5;
-      tfp->dump (cpuTime);
-      cpu->clk_i = 1;
-      cpu->eval ();
-      cpuTime += 5;
-      tfp->dump (cpuTime);
-      mCycleCnt++;
+    cpu->clk_i = 0;
+    cpu->eval ();
+    cpuTime += 5;
+    tfp->dump (cpuTime);
+    cpu->clk_i = 1;
+    cpu->eval ();
+    cpuTime += 5;
+    tfp->dump (cpuTime);
+    mCycleCnt++;
+    std::cout << "XCrypto illegal: " << cpu->top->riscv_core_i->id_stage_i->decoder_i->read_xcrypto_illegal() << std::endl;
   }
 }
 
@@ -171,62 +172,27 @@ void stepSingle ()
 void loadProgram()
 {
   uint32_t addr = 0x80;
-  uint32_t repeat_factor = 20;
 
-  for (size_t i = 0; i < repeat_factor; i++)
-  {
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x08);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x10);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x11);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x10);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x11);
 
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x93);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x07);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x04);
-
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x13);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x07);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x60);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x06);
-
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xc, 0x23);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xd, 0xa0);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xe, 0xe7);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xf, 0x00);
-
-    addr += 0x10;
-  }
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x08);
 
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x2b);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x08);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x10);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x11);
-
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x93);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x05);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x00);
-
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x13);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x06);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x00);
-
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x93);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x06);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x00);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x0c);
 
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xc, 0x93);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xd, 0x08);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xe, 0xd0);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xc, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xd, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xe, 0x00);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xf, 0x05);
 
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x10, 0x73);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x11, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x12, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x13, 0x00);
 }
 
 int
