@@ -53,6 +53,18 @@ static uint64_t mCycleCnt = 0;
 
 Vtop *cpu;
 VerilatedVcdC * tfp;
+bool passed = true;
+
+void checkProperties(void) {
+  uint32_t encoded = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i->read_encoded();
+  if (encoded == 0x1110082B) { // xc.init
+    uint32_t init = cpu->top->riscv_core_i->id_stage_i->decoder_i->scarv_cop_idecode_i->read_id_cprs_init();
+    if (!init) {
+      std::cout << "Init not asserted for xc.init." << std::endl;
+      passed = false;
+    }
+  }
+}
 
 // Clock the CPU for a given number of cycles, dumping to the trace file at
 // each clock edge.
@@ -62,14 +74,15 @@ void clockSpin(uint32_t cycles)
   {
     cpu->clk_i = 0;
     cpu->eval ();
-    cpuTime += 5;
+    cpuTime += 1;
     tfp->dump (cpuTime);
     cpu->clk_i = 1;
     cpu->eval ();
-    cpuTime += 5;
+    cpuTime += 1;
     tfp->dump (cpuTime);
     mCycleCnt++;
-    std::cout << "XCrypto illegal: " << cpu->top->riscv_core_i->id_stage_i->decoder_i->read_xcrypto_illegal() << std::endl;
+    checkProperties();
+    //std::cout << "XCrypto illegal: " << cpu->top->riscv_core_i->id_stage_i->decoder_i->read_xcrypto_illegal() << std::endl;
   }
 }
 
@@ -131,57 +144,20 @@ void waitForDebugStall()
     clockSpin(1);
   }
 }
-
-// Single-step the CPU
-void stepSingle ()
-{
-  cout << "DBG_CTRL  " << std::hex << debugRead(DBG_CTRL) << std::dec << endl;
-  cout << "DBG_HIT   " << std::hex << debugRead(DBG_HIT) << std::dec << endl;
-  cout << "DBG_CAUSE " << std::hex << debugRead(DBG_CAUSE) << std::dec << endl;
-  cout << "DBG_NPC   " << std::hex << debugRead(DBG_NPC) << std::dec << endl;
-  cout << "DBG_PPC   " << std::hex << debugRead(DBG_PPC) << std::dec << endl;
-
-  cout << "About to do one single step" << endl;
-
-  // Clear DBG_HIT
-  debugWrite(DBG_HIT, 0);
-
-  // Write SSTE into the debug register
-  debugWrite(DBG_CTRL, DBG_CTRL_SSTE);
-
-  // Wait until the step is completed
-  waitForDebugStall();
-}
-
-// Write some program code into memory:
-//
-// ; Store a word to memory first:
-// li a5, 64
-// li a4, 102
-// sw a4, 0(a5)
-// ; Repeated <repeat_factor> times (20 at present)
-//
-// ; Then do something a bit like _exit(0)
-// li a1, 0
-// li a2, 0
-// li a3, 0
-// li a7, 93
-// ecall
-//
 // Execution begins at 0x80, so that's where we write our code.
 void loadProgram()
 {
   uint32_t addr = 0x80;
 
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x08);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x10);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x11);
-
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x2b);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x10);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x11);
+
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x00);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x08);
 
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x2b);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x00);
@@ -241,21 +217,12 @@ main (int    argc,
   cpu->fetch_enable_i = 1;
 
   cout << "Cycling clock to run for a few instructions" << endl;
-  clockSpin(2000);
+  clockSpin(20);
 
   cout << "Halting" << endl;
 
   debugWrite(DBG_CTRL, debugRead(DBG_CTRL) | DBG_CTRL_HALT);
   waitForDebugStall();
-
-  cout << "Halted. Setting single step" << endl;
-
-  debugWrite(DBG_CTRL, DBG_CTRL_HALT | DBG_CTRL_SSTE);
-
-  // Try and step 5 instructions
-  for (int j=0; j<5; j++) {
-    stepSingle ();
-  }
 
   // Close VCD
 
@@ -266,6 +233,7 @@ main (int    argc,
   delete tfp;
   delete cpu;
 
+  return !passed;
 }
 
 //! Function to handle $time calls in the Verilog
@@ -274,7 +242,6 @@ double
 sc_time_stamp ()
 {
   return cpuTime;
-
 }
 
 // Local Variables:
