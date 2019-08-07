@@ -175,28 +175,33 @@ void loadProgram()
 
   for (size_t i = 0; i < repeat_factor; i++)
   {
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x93);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x07);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x00);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x04);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x2b);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x08);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x2, 0x10);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x3, 0x11);
 
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x13);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x4, 0x93);
     cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x5, 0x07);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x60);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x06);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x6, 0x00);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x7, 0x04);
 
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x23);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0xa0);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0xe7);
-    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x00);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x13);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x07);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x60);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x06);
 
-    addr += 0xC;
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xc, 0x23);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xd, 0xa0);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xe, 0xe7);
+    cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xf, 0x00);
+
+    addr += 0x10;
   }
 
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x11);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x10);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x08);
-  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x8, 0x2b);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x9, 0x08);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xa, 0x10);
+  cpu->top->ram_i->dp_ram_i->writeByte (addr + 0xb, 0x11);
 
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x0, 0x93);
   cpu->top->ram_i->dp_ram_i->writeByte (addr + 0x1, 0x05);
@@ -270,7 +275,7 @@ main (int    argc,
   cpu->fetch_enable_i = 1;
 
   cout << "Cycling clock to run for a few instructions" << endl;
-  clockSpin(20);
+  clockSpin(2000);
 
   cout << "Halting" << endl;
 

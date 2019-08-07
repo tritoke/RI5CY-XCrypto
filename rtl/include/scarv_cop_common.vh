@@ -1,4 +1,4 @@
-//
+// vim: ft=verilog
 // SCARV Project
 // 
 // University of Bristol

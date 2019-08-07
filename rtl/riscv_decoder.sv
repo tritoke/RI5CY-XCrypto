@@ -184,6 +184,8 @@ module riscv_decoder
   logic       apu_en;
 
   // XCrypto decoder subclasses 
+  logic [31:0] encoded = instr_rdata_i;
+  `include "ise_decode.sv"
   logic [15:0] subclass_load_store;
   logic [15:0] subclass_mp;
 	logic [15:0] subclass_bitwise;
@@ -1557,8 +1559,6 @@ module riscv_decoder
     ////////////////////////////////////////////
 
       OPCODE_XCRYPTO: begin
-				logic [31:0] encoded = instr_rdata_i;
-				`include "scarv_cop_common.vh"
 
 				parameter ISE_MCCR_R    = 1; // Feature enable bits.
 				parameter ISE_MCCR_MP   = 1; // 
@@ -1569,14 +1569,7 @@ module riscv_decoder
 				parameter ISE_MCCR_P4   = 1; // 
 				parameter ISE_MCCR_P2   = 1; // 
 
-				//
-				// Include the generated decoder. Exposes two classes of signal:
-				//  - dec_* for each instruction
-				//  - dec_arg_* for each possible instruction argument field.
-				//
-				//  This file is expected to be found in the $XC_WORK directory.
-				//
-        `include "ise_decode.sv"
+				`include "scarv_cop_common.vh"
 
 				// Put CRD register address in CRS2 address. Makes downstream logic
 				// easier for write data selection.
@@ -1772,7 +1765,7 @@ module riscv_decoder
 						subclass_bitwise    ;
 
 				// Initialise registers back to zero.
-				assign id_cprs_init = dec_init;
+				id_cprs_init = dec_init;
 
 				// Immediate decoding
 				assign imm_ld     = dec_ld_w     || dec_ld_hu   || dec_ld_bu;
