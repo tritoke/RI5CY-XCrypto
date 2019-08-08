@@ -1,4 +1,5 @@
 *.swp
+*.vcd
 *~
 /build
 /Bender.lock
