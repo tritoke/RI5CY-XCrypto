@@ -167,13 +167,6 @@ assign id_class[SCARV_COP_ICLASS_BITWISE     ] = class_bitwise      ;
 
 //
 // Subclass fields for different instruction classes.
-function [15:0] read_subclass_load_store;
-  /* verilator public */
-  begin
-    read_subclass_load_store = subclass_load_store;
-  end
-endfunction
-
 wire [15:0] subclass_load_store;
 assign subclass_load_store[SCARV_COP_SCLASS_SCATTER_B] = dec_scatter_b;
 assign subclass_load_store[SCARV_COP_SCLASS_GATHER_B ] = dec_gather_b ;
@@ -191,13 +184,6 @@ assign subclass_load_store[SCARV_COP_SCLASS_LDR_B    ] = dec_ldr_bu  ;
 assign subclass_load_store[SCARV_COP_SCLASS_STR_W    ] = dec_str_w   ;
 assign subclass_load_store[SCARV_COP_SCLASS_STR_H    ] = dec_str_h   ;
 assign subclass_load_store[SCARV_COP_SCLASS_STR_B    ] = dec_str_b   ;
-
-function [15:0] read_subclass_mp;
-  /* verilator public */
-  begin
-    read_subclass_mp = subclass_mp;
-  end
-endfunction
 
 wire [15:0] subclass_mp;
 assign subclass_mp[SCARV_COP_SCLASS_MEQU    ] = dec_mequ ;
@@ -217,13 +203,6 @@ assign subclass_mp[SCARV_COP_SCLASS_MMUL_3  ] = dec_mmul_3 ;
 assign subclass_mp[SCARV_COP_SCLASS_MCLMUL_3] = dec_mclmul_3;
 assign subclass_mp[                   15    ] = 0;
 
-function [15:0] read_subclass_bitwise;
-  /* verilator public */
-  begin
-    read_subclass_bitwise = subclass_bitwise;
-  end
-endfunction
-
 wire [15:0] subclass_bitwise;
 assign subclass_bitwise[SCARV_COP_SCLASS_BOP   ] = dec_bop ;
 assign subclass_bitwise[SCARV_COP_SCLASS_BMV   ] = dec_bmv ;
@@ -234,25 +213,11 @@ assign subclass_bitwise[SCARV_COP_SCLASS_LD_HIU] = dec_ld_hiu ;
 assign subclass_bitwise[SCARV_COP_SCLASS_LUT   ] = dec_lut;
 assign subclass_bitwise[                  15:7 ] = 0;
 
-function [15:0] read_subclass_permute;
-  /* verilator public */
-  begin
-    read_subclass_permute = subclass_permute;
-  end
-endfunction
-
 wire [15:0] subclass_permute;
 assign subclass_permute[SCARV_COP_SCLASS_PERM_BIT ] = dec_pbit ;
 assign subclass_permute[SCARV_COP_SCLASS_PERM_IBIT] = dec_ipbit;
 assign subclass_permute[SCARV_COP_SCLASS_PERM_BYTE] = dec_pbyte;
 assign subclass_permute[                     15:3 ] = 0;
-
-function [15:0] read_subclass_aes;
-  /* verilator public */
-  begin
-    read_subclass_aes = subclass_aes;
-  end
-endfunction
 
 wire [15:0] subclass_aes;
 assign subclass_aes[SCARV_COP_SCLASS_AESSUB_ENC   ] = dec_aessub_enc   ;
@@ -263,13 +228,6 @@ assign subclass_aes[SCARV_COP_SCLASS_AESMIX_ENC   ] = dec_aesmix_enc   ;
 assign subclass_aes[SCARV_COP_SCLASS_AESMIX_DEC   ] = dec_aesmix_dec   ;
 assign subclass_aes[                         15:6 ] = 0;
 
-function [15:0] read_subclass_sha3;
-  /* verilator public */
-  begin
-    read_subclass_sha3 = subclass_sha3;
-  end
-endfunction
-
 wire [15:0] subclass_sha3;
 assign subclass_sha3[SCARV_COP_SCLASS_SHA3_XY] = dec_sha3_xy;
 assign subclass_sha3[SCARV_COP_SCLASS_SHA3_X1] = dec_sha3_x1;
@@ -277,13 +235,6 @@ assign subclass_sha3[SCARV_COP_SCLASS_SHA3_X2] = dec_sha3_x2;
 assign subclass_sha3[SCARV_COP_SCLASS_SHA3_X4] = dec_sha3_x4;
 assign subclass_sha3[SCARV_COP_SCLASS_SHA3_YX] = dec_sha3_yx;
 assign subclass_sha3[                   15:5 ] = 0;
-
-function [15:0] read_subclass_palu;
-  /* verilator public */
-  begin
-    read_subclass_palu = subclass_palu;
-  end
-endfunction
 
 wire [15:0] subclass_palu;
 assign subclass_palu[SCARV_COP_SCLASS_PADD    ] = dec_padd    ;
@@ -300,26 +251,12 @@ assign subclass_palu[SCARV_COP_SCLASS_PSRL_I  ] = dec_psrl_i  ;
 assign subclass_palu[SCARV_COP_SCLASS_PROT_I  ] = dec_prot_i  ;
 assign subclass_palu[                    15:12] = 0;
 
-function [15:0] read_subclass_move;
-  /* verilator public */
-  begin
-    read_subclass_move = subclass_move;
-  end
-endfunction
-
 wire [15:0] subclass_move;
 assign subclass_move[SCARV_COP_SCLASS_CMOV_T ] = dec_cmov_t ;
 assign subclass_move[SCARV_COP_SCLASS_CMOV_F ] = dec_cmov_f ;
 assign subclass_move[SCARV_COP_SCLASS_GPR2XCR] = dec_gpr2xcr;
 assign subclass_move[SCARV_COP_SCLASS_XCR2GPR] = dec_xcr2gpr;
 assign subclass_move[                    15:4] = 0;
-
-function [15:0] read_subclass_random;
-  /* verilator public */
-  begin
-    read_subclass_random = subclass_random;
-  end
-endfunction
 
 wire [15:0] subclass_random;
 assign subclass_random[SCARV_COP_SCLASS_RSEED] = dec_rngseed;
@@ -330,6 +267,13 @@ assign subclass_random[                  15:3] = 0;
 //
 // Identify individual instructions within a class using the subclass
 // field.
+
+function [15:0] read_id_subclass;
+  /* verilator public */
+  begin
+    read_id_subclass = id_subclass;
+  end
+endfunction
 
 assign id_subclass = 
     subclass_sha3       |
