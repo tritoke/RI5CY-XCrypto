@@ -143,29 +143,29 @@ std::vector<decode_testcase> decode_testcases = {
 };
 
 /* Check that invariants hold. To be called on every clock cycle. */
-void checkProperties(void) {
-  auto idecode = cpu->top->riscv_core_i->id_stage_i->scarv_cop_idecode_i;
-  uint32_t encoded = idecode->read_encoded();
-  uint32_t id_subclass = idecode->read_id_subclass();
+//void checkProperties(void) {
+//  auto idecode = cpu->top->riscv_core_i->id_stage_i->scarv_cop_idecode_i;
+//  uint32_t encoded = idecode->read_encoded();
+//  uint32_t id_subclass = idecode->read_id_subclass();
 
-  /* Check xc.init asserts id_cprs_init */
-  if (encoded == 0x1110082B) {
-    if (!idecode->read_id_cprs_init()) {
-      std::cout << "id_cprs_init not asserted for xc.init." << std::endl;
-      passed = false;
-    }
-  }
+//  /* Check xc.init asserts id_cprs_init */
+//  if (encoded == 0x1110082B) {
+//    if (!idecode->read_id_cprs_init()) {
+//      std::cout << "id_cprs_init not asserted for xc.init." << std::endl;
+//      passed = false;
+//    }
+//  }
 
-  /* Test subclass signals correctly asserted for each instruction */
-  for (auto& t: decode_testcases) {
-    if ((encoded & t.mask) == t.instr) {
-      if (! (id_subclass & (1 << t.subclass))) {
-        std::cout << t.signal << " not asserted for " << t.mnemonic << std::endl;
-        passed = false;
-      }
-    }
-  }
-}
+//  /* Test subclass signals correctly asserted for each instruction */
+//  for (auto& t: decode_testcases) {
+//    if ((encoded & t.mask) == t.instr) {
+//      if (! (id_subclass & (1 << t.subclass))) {
+//        std::cout << t.signal << " not asserted for " << t.mnemonic << std::endl;
+//        passed = false;
+//      }
+//    }
+//  }
+//}
 
 // Clock the CPU for a given number of cycles, dumping to the trace file at
 // each clock edge.
@@ -182,7 +182,7 @@ void clockSpin(uint32_t cycles)
     cpuTime += 1;
     tfp->dump (cpuTime);
     mCycleCnt++;
-    checkProperties();
+    //checkProperties();
   }
 }
 

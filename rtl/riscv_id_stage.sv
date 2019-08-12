@@ -250,6 +250,8 @@ module riscv_id_stage
   // Decoder/Controller ID stage internal signals
   logic        deassert_we;
 
+  logic        riscv_illegal;
+  logic        xcrypto_illegal;
   logic        illegal_insn_dec;
   logic        ebrk_insn;
   logic        mret_insn_dec;
@@ -272,6 +274,25 @@ module riscv_id_stage
   logic        instr_multicycle;
 
   logic        halt_id;
+
+  // XCrypto signals
+  
+  logic [ 8:0] id_class;         // Instruction class.
+  logic [15:0] id_subclass;      // Instruction subclass.
+  logic        id_cprs_init;     // An init instruction is executing.
+
+  logic [ 2:0] id_pw;            // Instruction pack width.
+  logic [ 3:0] id_crs1;          // Instruction source register 1
+  logic [ 3:0] id_crs2;          // Instruction source register 2
+  logic [ 3:0] id_crs3;          // Instruction source register 3
+  logic [ 3:0] id_crd;           // Instruction destination register
+  logic [ 3:0] id_crd1;          // MP Instruction destination register 1
+  logic [ 3:0] id_crd2;          // MP Instruction destination register 2
+  logic [ 4:0] id_rd;            // GPR destination register
+  logic [ 4:0] id_rs1;           // GPR source register
+  logic [31:0] id_imm;           // Decoded immediate.
+  logic        id_wb_h;          // Halfword index (load/store)
+  logic        id_wb_b;          // Byte index (load/store)
 
 
   // Immediate decoding and sign extension
@@ -1003,7 +1024,7 @@ module riscv_id_stage
     .mult_multicycle_i               ( mult_multicycle_i         ),
     .instr_multicycle_o              ( instr_multicycle          ),
 
-    .illegal_insn_o                  ( illegal_insn_dec          ),
+    .illegal_insn_o                  ( riscv_illegal             ),
     .ebrk_insn_o                     ( ebrk_insn                 ),
     .mret_insn_o                     ( mret_insn_dec             ),
     .uret_insn_o                     ( uret_insn_dec             ),
@@ -1089,6 +1110,39 @@ module riscv_id_stage
     .jump_target_mux_sel_o           ( jump_target_mux_sel       )
 
   );
+
+  ////////////////////////////////////////////////////////
+  //           ____  _____ ____ ___  ____  _____ ____   //
+  //          |  _ \| ____/ ___/ _ \|  _ \| ____|  _ \  //
+  //  XCrypto-| | | |  _|| |  | | | | | | |  _| | |_) | //
+  //          | |_| | |__| |__| |_| | |_| | |___|  _ <  //
+  //          |____/|_____\____\___/|____/|_____|_| \_\ //
+  //                                                    //
+  ////////////////////////////////////////////////////////
+
+  scarv_cop_idecode
+  xcrypto_decoder
+  (
+    .id_encoded                      ( instr                     ), // Encoding 32-bit instruction
+    .id_exception                    ( xcryto_illegal            ), // Illegal instruction exception.
+    .id_class                        ( id_class                  ), // Instruction class.
+    .id_subclass                     ( id_subclass               ), // Instruction subclass.
+    .id_pw                           ( id_pw                     ), // Instruction pack width.
+    .id_cprs_init                    ( id_cprs_init              ), // xc.init executing.
+    .id_crs1                         ( id_crs1                   ), // Instruction source register 1
+    .id_crs2                         ( id_crs2                   ), // Instruction source register 2
+    .id_crs3                         ( id_crs3                   ), // Instruction source register 3
+    .id_crd                          ( id_crd                    ), // Instruction destination register
+    .id_crd1                         ( id_crd1                   ), // MP Instruction destination register 1
+    .id_crd2                         ( id_crd2                   ), // MP Instruction destination register 2
+    .id_rd                           ( id_rd                     ), // GPR destination register
+    .id_rs1                          ( id_rs1                    ), // GPR source register
+    .id_imm                          ( id_imm                    ), // Decoded immediate.
+    .id_wb_h                         ( id_wb_h                   ),
+    .id_wb_b                         ( id_wb_b                   )
+  );
+
+  assign illegal_insn_dec = riscv_illegal & xcryto_illegal;
 
   ////////////////////////////////////////////////////////////////////
   //    ____ ___  _   _ _____ ____   ___  _     _     _____ ____    //
