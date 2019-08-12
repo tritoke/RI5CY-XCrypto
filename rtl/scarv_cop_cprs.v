@@ -86,6 +86,7 @@ assign cprs_init_done = init_fsm == 15;
 
 always @(posedge g_clk) begin
     if(cprs_init) begin
+        $display("Initialising FSM: init_fsm=%d\n", init_fsm);
         init_fsm <= init_fsm == 15 ? 15 : n_init_fsm;
     end else begin
         init_fsm <= 0;

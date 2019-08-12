@@ -230,27 +230,27 @@ scarv_integ_prv_pcpi2cop i_pcpi2cop (
 scarv_cop_top #(
     .FAST_COP_CPU_IF(1) // Use the faster CPU/COP interface
 ) i_scarv_cop_top(
-.g_clk        (g_clk        ) , // Global clock
-.g_resetn     (g_resetn     ) , // Synchronous active low reset.
-.cpu_insn_req (cpu_insn_req ) , // Instruction request
-.cop_insn_ack (cop_insn_ack ) , // Instruction request acknowledge
-.cpu_insn_enc (cpu_insn_enc ) , // Encoded instruction data
-.cpu_rs1      (cpu_rs1      ) , // RS1 source data
-.cpu_rs2      (cpu_rs2      ), // RS2 source data
-.cop_wen      (cop_wen      ) , // COP write enable
-.cop_waddr    (cop_waddr    ) , // COP destination register address
-.cop_wdata    (cop_wdata    ) , // COP write data
-.cop_result   (cop_result   ) , // COP execution result
-.cop_insn_rsp (cop_insn_rsp ) , // COP instruction finished
-.cpu_insn_ack (cpu_insn_ack ) , // Instruction finish acknowledge
-.cop_mem_cen  (cop_mem_cen  ) , // Chip enable
-.cop_mem_wen  (cop_mem_wen  ) , // write enable
-.cop_mem_addr (cop_mem_addr ) , // Read/write address (word aligned)
-.cop_mem_wdata(cop_mem_wdata) , // Memory write data
-.cop_mem_rdata(cop_mem_rdata) , // Memory read data
-.cop_mem_ben  (cop_mem_ben  ) , // Write Byte enable
-.cop_mem_stall(cop_mem_stall) , // Stall
-.cop_mem_error(cop_mem_error)   // Error
+.g_clk         ( g_clk         ),  // Global clock
+.g_resetn      ( g_resetn      ),  // Synchronous active low reset.
+.cpu_insn_req  ( cpu_insn_req  ),  // Instruction request
+.cop_insn_ack  ( cop_insn_ack  ),  // Instruction request acknowledge
+.cpu_insn_enc  ( cpu_insn_enc  ),  // Encoded instruction data
+.cpu_rs1       ( cpu_rs1       ),  // RS1 source data
+.cpu_rs2       ( cpu_rs2       ),  // RS2 source data
+.cop_wen       ( cop_wen       ),  // COP write enable
+.cop_waddr     ( cop_waddr     ),  // COP destination register address
+.cop_wdata     ( cop_wdata     ),  // COP write data
+.cop_result    ( cop_result    ),  // COP execution result
+.cop_insn_rsp  ( cop_insn_rsp  ),  // COP instruction finished
+.cpu_insn_ack  ( cpu_insn_ack  ),  // Instruction finish acknowledge
+.cop_mem_cen   ( cop_mem_cen   ),  // Chip enable
+.cop_mem_wen   ( cop_mem_wen   ),  // write enable
+.cop_mem_addr  ( cop_mem_addr  ),  // Read/write address (word aligned)
+.cop_mem_wdata ( cop_mem_wdata ),  // Memory write data
+.cop_mem_rdata ( cop_mem_rdata ),  // Memory read data
+.cop_mem_ben   ( cop_mem_ben   ),  // Write Byte enable
+.cop_mem_stall ( cop_mem_stall ),  // Stall
+.cop_mem_error ( cop_mem_error )   // Error
 );
 
 

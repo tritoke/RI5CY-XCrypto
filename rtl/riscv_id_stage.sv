@@ -279,7 +279,6 @@ module riscv_id_stage
   
   logic [ 8:0] id_class;         // Instruction class.
   logic [15:0] id_subclass;      // Instruction subclass.
-  logic        id_cprs_init;     // An init instruction is executing.
 
   logic [ 2:0] id_pw;            // Instruction pack width.
   logic [ 3:0] id_crs1;          // Instruction source register 1
@@ -294,6 +293,25 @@ module riscv_id_stage
   logic        id_wb_h;          // Halfword index (load/store)
   logic        id_wb_b;          // Byte index (load/store)
 
+  logic        id_cprs_init;     // xc.init decoded
+  logic        cprs_init;        // xc.init being executed.
+  logic        cprs_init_done;   // xc.init being executed.
+
+  logic        crs1_ren;         // Port 1 read enable
+  logic [ 3:0] crs1_addr;        // Port 1 address
+  logic [31:0] crs1_rdata;       // Port 1 read data
+
+  logic        crs2_ren;         // Port 2 read enable
+  logic [ 3:0] crs2_addr;        // Port 2 address
+  logic [31:0] crs2_rdata;       // Port 2 read data
+
+  logic        crs3_ren;         // Port 3 read enable
+  logic [ 3:0] crs3_addr;        // Port 3 address
+  logic [31:0] crs3_rdata;       // Port 3 read data
+
+  logic [ 3:0] crd_wen;          // Port 4 write enable
+  logic [ 3:0] crd_addr;         // Port 4 address
+  logic [31:0] crd_wdata;        // Port 4 write data
 
   // Immediate decoding and sign extension
   logic [31:0] imm_i_type;
@@ -1111,14 +1129,14 @@ module riscv_id_stage
 
   );
 
-  ////////////////////////////////////////////////////////
-  //           ____  _____ ____ ___  ____  _____ ____   //
-  //          |  _ \| ____/ ___/ _ \|  _ \| ____|  _ \  //
-  //  XCrypto-| | | |  _|| |  | | | | | | |  _| | |_) | //
-  //          | |_| | |__| |__| |_| | |_| | |___|  _ <  //
-  //          |____/|_____\____\___/|____/|_____|_| \_\ //
-  //                                                    //
-  ////////////////////////////////////////////////////////
+  //////////////////////////////////////////////
+  //  __  ______ ______   ______ _____ ___    //
+  //  \ \/ / ___|  _ \ \ / /  _ \_   _/ _ \   //
+  //   \  / |   | |_) \ V /| |_) || || | | |  //
+  //   /  \ |___|  _ < | | |  __/ | || |_| |  //
+  //  /_/\_\____|_| \_\|_| |_|    |_| \___/   //
+  //                                          //
+  //////////////////////////////////////////////
 
   scarv_cop_idecode
   xcrypto_decoder
@@ -1143,6 +1161,31 @@ module riscv_id_stage
   );
 
   assign illegal_insn_dec = riscv_illegal & xcryto_illegal;
+  assign cprs_init = id_cprs_init ? 1 : cprs_init & (!cprs_init_done);
+
+  scarv_cop_cprs
+  xcrypto_registers
+  (
+    .g_clk                           ( clk                       ), // Global clock
+    .g_resetn                        ( rst_n                     ), // Synchronous active low reset.
+    `ifdef FORMAL
+    `VTX_REGISTER_PORTS_RAISE(cprs_snoop)
+    `endif
+    .cprs_init                       ( cprs_init                 ), // Initialise back to zero.
+    .cprs_init_done                  ( cprs_init_done            ), // Initialise back to zero.
+    .crs1_ren                        ( crs1_ren                  ), // Port 1 read enable
+    .crs1_addr                       ( crs1_addr                 ), // Port 1 address
+    .crs1_rdata                      ( crs1_rdata                ), // Port 1 read data
+    .crs2_ren                        ( crs2_ren                  ), // Port 2 read enable
+    .crs2_addr                       ( crs2_addr                 ), // Port 2 address
+    .crs2_rdata                      ( crs2_rdata                ), // Port 2 read data
+    .crs3_ren                        ( crs3_ren                  ), // Port 3 read enable
+    .crs3_addr                       ( crs3_addr                 ), // Port 3 address
+    .crs3_rdata                      ( crs3_rdata                ), // Port 3 read data
+    .crd_wen                         ( crd_wen                   ), // Port 4 write enable
+    .crd_addr                        ( crd_addr                  ), // Port 4 address
+    .crd_wdata                       ( crd_wdata                 )  // Port 4 write data
+  );
 
   ////////////////////////////////////////////////////////////////////
   //    ____ ___  _   _ _____ ____   ___  _     _     _____ ____    //
