@@ -41,6 +41,13 @@ output wire        id_wb_b           // Byte index (load/store)
 
 //
 // Expected to be in same directory as this file.
+function [31:0] read_encoded;
+  /* verilator public */
+  begin
+    read_encoded = encoded;
+  end
+endfunction
+
 wire [31:0] encoded = id_encoded;
 `include "scarv_cop_common.vh"
 
@@ -139,6 +146,13 @@ wire class_aes          =
 
 wire class_sha3         =
     dec_sha3_xy || dec_sha3_x1 || dec_sha3_x2 || dec_sha3_x4 || dec_sha3_yx;
+
+function [8:0] read_id_class;
+  /* verilator public */
+  begin
+    read_id_class = id_class;
+  end
+endfunction
 
 assign id_class[SCARV_COP_ICLASS_SHA3        ] = class_sha3         ;
 assign id_class[SCARV_COP_ICLASS_AES         ] = class_aes          ;
@@ -253,6 +267,14 @@ assign subclass_random[                  15:3] = 0;
 //
 // Identify individual instructions within a class using the subclass
 // field.
+
+function [15:0] read_id_subclass;
+  /* verilator public */
+  begin
+    read_id_subclass = id_subclass;
+  end
+endfunction
+
 assign id_subclass = 
     subclass_sha3       |
     subclass_aes        |
@@ -265,6 +287,13 @@ assign id_subclass =
     subclass_bitwise    ;
 
 // Initialise registers back to zero.
+function read_id_cprs_init;
+  /* verilator public */
+  begin
+    read_id_cprs_init = id_cprs_init;
+  end
+endfunction
+
 assign id_cprs_init = dec_init;
 
 //

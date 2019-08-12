@@ -144,7 +144,7 @@ std::vector<decode_testcase> decode_testcases = {
 
 /* Check that invariants hold. To be called on every clock cycle. */
 void checkProperties(void) {
-  auto idecode = cpu->top->riscv_core_i->id_stage_i->scarv_cop_idecode_i;
+  auto idecode = cpu->top->riscv_core_i->id_stage_i->xcrypto_decoder;
   uint32_t encoded = idecode->read_encoded();
   uint32_t id_subclass = idecode->read_id_subclass();
 
