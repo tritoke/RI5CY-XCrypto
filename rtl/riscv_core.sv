@@ -205,6 +205,16 @@ module riscv_core
   logic [C_FFLAG-1:0]         fflags_csr;
   logic                       fflags_we;
 
+  // XCrypto
+  logic [ 8:0] id_class;         // Instruction class.
+  logic [15:0] id_subclass;      // Instruction subclass.
+  logic [ 2:0] id_pw;            // Instruction pack width.
+  logic [31:0] id_imm;           // Decoded immediate.
+
+  logic [31:0] u_rs1;            // GPR rs1
+  logic [31:0] palu_rs1;         // XCR source register 1 data
+  logic [31:0] palu_rs2;         // XCR source register 2 data
+  logic [31:0] palu_rs3;         // XCR source register 3 data
 
   // APU
   logic                        apu_en_ex;
@@ -632,26 +642,37 @@ module riscv_core
     .mult_dot_signed_ex_o         ( mult_dot_signed_ex   ), // from ID to EX stage
 
     // FPU
-    .fpu_op_ex_o                  ( fpu_op_ex               ),
+    .fpu_op_ex_o                  ( fpu_op_ex            ),
+
+    // XCrypto
+    .id_class                     ( id_class             ), // Instruction class
+    .id_subclass                  ( id_subclass          ), // Instruction subclass
+    .id_pw                        ( id_pw                ), // Pack width
+    .id_imm                       ( id_imm               ), // Source immedate
+                                    
+    .u_rs1                        ( u_rs1                ), // GPR rs1
+    .palu_rs1                     ( palu_rs1             ), // Source register 1
+    .palu_rs2                     ( palu_rs2             ), // Source register 2
+    .palu_rs3                     ( palu_rs3             ), // Source register 3
 
     // APU
-    .apu_en_ex_o                  ( apu_en_ex               ),
-    .apu_type_ex_o                ( apu_type_ex             ),
-    .apu_op_ex_o                  ( apu_op_ex               ),
-    .apu_lat_ex_o                 ( apu_lat_ex              ),
-    .apu_operands_ex_o            ( apu_operands_ex         ),
-    .apu_flags_ex_o               ( apu_flags_ex            ),
-    .apu_waddr_ex_o               ( apu_waddr_ex            ),
+    .apu_en_ex_o                  ( apu_en_ex            ),
+    .apu_type_ex_o                ( apu_type_ex          ),
+    .apu_op_ex_o                  ( apu_op_ex            ),
+    .apu_lat_ex_o                 ( apu_lat_ex           ),
+    .apu_operands_ex_o            ( apu_operands_ex      ),
+    .apu_flags_ex_o               ( apu_flags_ex         ),
+    .apu_waddr_ex_o               ( apu_waddr_ex         ),
 
-    .apu_read_regs_o              ( apu_read_regs           ),
-    .apu_read_regs_valid_o        ( apu_read_regs_valid     ),
-    .apu_read_dep_i               ( apu_read_dep            ),
-    .apu_write_regs_o             ( apu_write_regs          ),
-    .apu_write_regs_valid_o       ( apu_write_regs_valid    ),
-    .apu_write_dep_i              ( apu_write_dep           ),
-    .apu_perf_dep_o               ( perf_apu_dep            ),
-    .apu_busy_i                   ( apu_busy                ),
-    .frm_i                        ( frm_csr                 ),
+    .apu_read_regs_o              ( apu_read_regs        ),
+    .apu_read_regs_valid_o        ( apu_read_regs_valid  ),
+    .apu_read_dep_i               ( apu_read_dep         ),
+    .apu_write_regs_o             ( apu_write_regs       ),
+    .apu_write_regs_valid_o       ( apu_write_regs_valid ),
+    .apu_write_dep_i              ( apu_write_dep        ),
+    .apu_perf_dep_o               ( perf_apu_dep         ),
+    .apu_busy_i                   ( apu_busy             ),
+    .frm_i                        ( frm_csr              ),
 
     // CSR ID/EX
     .csr_access_ex_o              ( csr_access_ex        ),
@@ -797,6 +818,16 @@ module riscv_core
 
     // XCrypto
     .cprs_init                  ( cprs_init                    ),
+
+    .id_class                   ( id_class                     ), // instruction class.
+    .id_subclass                ( id_subclass                  ), // instruction subclass.
+    .id_pw                      ( id_pw                        ), // instruction pack width.
+    .id_imm                     ( id_imm                       ), // decoded immediate.
+
+    .u_rs1                      ( u_rs1 ),    // GPR rs1
+    .palu_rs1                   ( palu_rs1 ), // instruction source register 1
+    .palu_rs2                   ( palu_rs2 ), // instruction source register 2
+    .palu_rs3                   ( palu_rs3 ), // instruction source register 3
 
     // APU
     .apu_en_i                   ( apu_en_ex                    ),

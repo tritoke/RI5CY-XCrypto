@@ -69,6 +69,10 @@ VSRC = cluster_clock_gating.sv            \
        ../rtl/riscv_apu_disp.sv               \
        ../rtl/riscv_L0_buffer.sv							\
        ../rtl/scarv_cop_cprs.v							  \
+       ../rtl/scarv_cop_palu.v							  \
+       ../rtl/scarv_cop_palu_adder.v				  \
+       ../rtl/scarv_cop_palu_multiplier.v		  \
+       ../rtl/scarv_cop_palu_shifter.v  		  \
        ../rtl/scarv_cop_idecode.v             
        
 

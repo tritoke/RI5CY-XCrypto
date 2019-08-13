@@ -145,6 +145,17 @@ module riscv_id_stage
     // FPU
     output logic [C_CMD-1:0]           fpu_op_ex_o,
 
+    // XCrypto
+    output logic [ 8:0] id_class,     // Instruction class.
+    output logic [15:0] id_subclass,  // Instruction subclass.
+    output logic [ 2:0] id_pw,        // Instruction pack width.
+    output logic [31:0] id_imm,       // Decoded immediate.
+
+    output logic [31:0] u_rs1,        // GPR source register
+    output logic [31:0] palu_rs1,     // Instruction source register 1
+    output logic [31:0] palu_rs2,     // Instruction source register 2
+    output logic [31:0] palu_rs3,     // Instruction source register 3
+
     // APU
     output logic                        apu_en_ex_o,
     output logic [WAPUTYPE-1:0]         apu_type_ex_o,
@@ -279,42 +290,38 @@ module riscv_id_stage
   logic        halt_id;
 
   // XCrypto signals
-  
-  logic [ 8:0] id_class;         // Instruction class.
-  logic [15:0] id_subclass;      // Instruction subclass.
 
-  logic [ 2:0] id_pw;            // Instruction pack width.
-  logic [ 3:0] id_crs1;          // Instruction source register 1
-  logic [ 3:0] id_crs2;          // Instruction source register 2
-  logic [ 3:0] id_crs3;          // Instruction source register 3
-  logic [ 3:0] id_crd;           // Instruction destination register
-  logic [ 3:0] id_crd1;          // MP Instruction destination register 1
-  logic [ 3:0] id_crd2;          // MP Instruction destination register 2
-  logic [ 4:0] id_rd;            // GPR destination register
-  logic [ 4:0] id_rs1;           // GPR source register
-  logic [31:0] id_imm;           // Decoded immediate.
-  logic        id_wb_h;          // Halfword index (load/store)
-  logic        id_wb_b;          // Byte index (load/store)
+  logic        id_cprs_init;        // xc.init decoded
+  logic        cprs_init;           // xc.init being executed.
+  logic        cprs_init_done;      // xc.init being executed.
 
-  logic        id_cprs_init;     // xc.init decoded
-  logic        cprs_init;        // xc.init being executed.
-  logic        cprs_init_done;   // xc.init being executed.
+  logic [ 3:0] id_crs1;             // Instruction source register 1
+  logic [ 3:0] id_crs2;             // Instruction source register 2
+  logic [ 3:0] id_crs3;             // Instruction source register 3
 
-  logic        crs1_ren;         // Port 1 read enable
-  logic [ 3:0] crs1_addr;        // Port 1 address
-  logic [31:0] crs1_rdata;       // Port 1 read data
+  logic [ 3:0] id_crd;              // Instruction destination register
+  logic [ 3:0] id_crd1;             // MP Instruction destination register 1
+  logic [ 3:0] id_crd2;             // MP Instruction destination register 2
+  logic [ 4:0] id_rd;               // GPR destination register
+  logic [ 4:0] id_rs1;              // GPR source register
+  logic        id_wb_h;             // Halfword index (load/store)
+  logic        id_wb_b;             // Byte index (load/store)
 
-  logic        crs2_ren;         // Port 2 read enable
-  logic [ 3:0] crs2_addr;        // Port 2 address
-  logic [31:0] crs2_rdata;       // Port 2 read data
+  logic        crs1_ren = 1'b1;     // Port 1 read enable
+  logic [ 3:0] crs1_addr = id_crs1; // Port 1 address
+  logic [31:0] crs1_rdata;          // Port 1 read data
 
-  logic        crs3_ren;         // Port 3 read enable
-  logic [ 3:0] crs3_addr;        // Port 3 address
-  logic [31:0] crs3_rdata;       // Port 3 read data
+  logic        crs2_ren = 1'b1;     // Port 2 read enable
+  logic [ 3:0] crs2_addr = id_crs2; // Port 2 address
+  logic [31:0] crs2_rdata;          // Port 2 read data
 
-  logic [ 3:0] crd_wen;          // Port 4 write enable
-  logic [ 3:0] crd_addr;         // Port 4 address
-  logic [31:0] crd_wdata;        // Port 4 write data
+  logic        crs3_ren = 1'b1;     // Port 3 read enable
+  logic [ 3:0] crs3_addr = id_crs3; // Port 4 address
+  logic [31:0] crs3_rdata;          // Port 3 read data
+
+  logic [ 3:0] crd_wen;             // Port 4 write enable
+  logic [ 3:0] crd_addr;            // Port 4 address
+  logic [31:0] crd_wdata;           // Port 4 write data
 
   // Immediate decoding and sign extension
   logic [31:0] imm_i_type;
@@ -982,7 +989,7 @@ module riscv_id_stage
     .fregfile_disable_i ( fregfile_disable_i ),
 
     // Read port a
-    .raddr_a_i          ( regfile_addr_ra_id ),
+    .raddr_a_i          ( (riscv_illegal ? id_rs1 : regfile_addr_ra_id) ),
     .rdata_a_o          ( regfile_data_ra_id ),
 
     // Read port b
@@ -1015,6 +1022,7 @@ module riscv_id_stage
   );
 
   assign dbg_reg_rdata_o = regfile_data_rc_id;
+  assign u_rs1 = regfile_data_ra_id;
 
 
   ///////////////////////////////////////////////
@@ -1165,6 +1173,10 @@ module riscv_id_stage
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
   assign cprs_init = id_cprs_init & (~cprs_init_done);
+
+  assign palu_rs1 = crs1_rdata;
+  assign palu_rs2 = crs2_rdata;
+  assign palu_rs3 = crs3_rdata;
 
   scarv_cop_cprs
   xcrypto_registers

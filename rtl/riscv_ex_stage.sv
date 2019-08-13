@@ -87,7 +87,18 @@ module riscv_ex_stage
   output logic                        fpu_fflags_we_o,
 
   // XCrypto signals
-  input  logic                        cprs_init, // init executing
+  input  logic          cprs_init,    // init executing
+
+  input logic [ 8:0]    id_class,     // Instruction class.
+  input logic [15:0]    id_subclass,  // Instruction subclass.
+  input logic [ 2:0]    id_pw,        // Instruction pack width.
+  input logic [31:0]    id_imm,       // Decoded immediate.
+
+  input logic [31:0]    u_rs1,        // GPR rs1
+  input logic [31:0]    palu_rs1,     // CPR Port 1 read data
+  input logic [31:0]    palu_rs2,     // CPR Port 2 read data
+  input logic [31:0]    palu_rs3,     // CPR Port 3 read data
+
 
   // APU signals
   input  logic                        apu_en_i,
@@ -450,6 +461,53 @@ module riscv_ex_stage
    endgenerate
 
    assign apu_busy_o = apu_active;
+
+  //////////////////////////////////////////////
+  //  __  ______ ______   ______ _____ ___    //
+  //  \ \/ / ___|  _ \ \ / /  _ \_   _/ _ \   // 
+  //   \  / |   | |_) \ V /| |_) || || | | |  //   
+  //   /  \ |___|  _ < | | |  __/ | || |_| |  // 
+  //  /_/\_\____|_| \_\|_| |_|    |_| \___/   // 
+  //                                          //
+  //////////////////////////////////////////////
+
+  `include "scarv_cop_common.vh"
+
+  logic          palu_ivalid      ; // Valid instruction input
+  logic          palu_idone       ; // Instruction complete
+  logic [ 3:0]   palu_cpr_rd_ben  ; // Writeback byte enable
+  logic [31:0]   palu_cpr_rd_wdata; // Writeback data
+
+  assign palu_ivalid = 
+    ( id_class[SCARV_COP_ICLASS_PACKED_ARITH] ||
+      id_class[SCARV_COP_ICLASS_MOVE        ] ||
+      id_class[SCARV_COP_ICLASS_BITWISE     ] );
+
+  //
+  // instance: scarv_cop_palu
+  //
+  //  Combinatorial Packed arithmetic and shift module.
+  //
+  // notes:
+  //  - INS expects crd value to be in palu_rs3
+  //
+  scarv_cop_palu i_scarv_cop_palu (
+    .g_clk              ( clk               ), // Global clock
+    .g_resetn           ( rst_n             ), // Synchronous active low reset.
+    .palu_ivalid        ( palu_ivalid       ), // Valid instruction input
+    .palu_idone         ( palu_idone        ), // Instruction complete
+    .gpr_rs1            ( u_rs1             ), // GPR rs1
+    .palu_rs1           ( palu_rs1          ), // Source register 1
+    .palu_rs2           ( palu_rs2          ), // Source register 2
+    .palu_rs3           ( palu_rs3          ), // Source register 3
+    .id_imm             ( id_imm            ), // Source immedate
+    .id_pw              ( id_pw             ), // Pack width
+    .id_class           ( id_class          ), // Instruction class
+    .id_subclass        ( id_subclass       ), // Instruction subclass
+  //.palu_cpr_rd_ben    ( palu_cpr_rd_ben   ), // Writeback byte enable
+  //.palu_cpr_rd_wdata  ( palu_cpr_rd_wdata )  // Writeback data
+  );
+
 
   ///////////////////////////////////////
   // EX/WB Pipeline Register           //

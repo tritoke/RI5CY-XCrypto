@@ -190,133 +190,133 @@ assign perm_ivalid  = insn_valid && id_class[SCARV_COP_ICLASS_PERMUTE];
 //  CPR writeback muxing from the functional units.
 //
 
-assign crd_wen   = palu_cpr_rd_ben |
-                   mem_cpr_rd_ben  |
-                   malu_cpr_rd_ben |
-                   rng_cpr_rd_ben  |
-                   aes_cpr_rd_ben  |
-                   perm_cpr_rd_ben ;
+ssign crd_wen   = palu_cpr_rd_ben |
+                  mem_cpr_rd_ben  |
+                  malu_cpr_rd_ben |
+                  rng_cpr_rd_ben  |
+                  aes_cpr_rd_ben  |
+                  perm_cpr_rd_ben ;
 
-assign crd_addr  = !malu_ivalid ? id_crd :
-                   !malu_idone  ? id_crd1:
-                                  id_crd2;
+ssign crd_addr  = !malu_ivalid ? id_crd :
+                  !malu_idone  ? id_crd1:
+                                 id_crd2;
 
-assign crd_wdata = palu_cpr_rd_wdata |
-                   mem_cpr_rd_wdata  |
-                   malu_cpr_rd_wdata |
-                   rng_cpr_rd_wdata  |
-                   aes_cpr_rd_wdata  |
-                   perm_cpr_rd_wdata ;
+ssign crd_wdata = palu_cpr_rd_wdata |
+                  mem_cpr_rd_wdata  |
+                  malu_cpr_rd_wdata |
+                  rng_cpr_rd_wdata  |
+                  aes_cpr_rd_wdata  |
+                  perm_cpr_rd_wdata ;
 
-//
-// GPR Writeback data and instruction result selection
-//
-//  Control writeback data for the GPRs, and the result of each
-//  instruction.
-//
+/
+/ GPR Writeback data and instruction result selection
+/
+/  Control writeback data for the GPRs, and the result of each
+/  instruction.
+/
 
-wire        n_cop_wen   ; // COP write enable
-wire [ 4:0] n_cop_waddr ; // COP destination register address
-wire [31:0] n_cop_wdata ; // COP write data
-wire [ 2:0] n_cop_result; // COP execution result
+ire        n_cop_wen   ; // COP write enable
+ire [ 4:0] n_cop_waddr ; // COP destination register address
+ire [31:0] n_cop_wdata ; // COP write data
+ire [ 2:0] n_cop_result; // COP execution result
 
-assign n_cop_waddr = id_rd;
+ssign n_cop_waddr = id_rd;
 
-assign n_cop_wen   = 
-    (id_class[SCARV_COP_ICLASS_MOVE]    &&
-     id_subclass[SCARV_COP_SCLASS_XCR2GPR]   )  ||
-    (id_class[SCARV_COP_ICLASS_SHA3  ]          )  ||
-    (id_class[SCARV_COP_ICLASS_RANDOM]  &&
-     id_subclass[SCARV_COP_SCLASS_RTEST]     )  ||
-    (id_class[SCARV_COP_ICLASS_MP]      &&
-     (id_subclass[SCARV_COP_SCLASS_MEQU] ||
-      id_subclass[SCARV_COP_SCLASS_MLTE] ||
-      id_subclass[SCARV_COP_SCLASS_MGTE] ) )   ;
+ssign n_cop_wen   = 
+   (id_class[SCARV_COP_ICLASS_MOVE]    &&
+    id_subclass[SCARV_COP_SCLASS_XCR2GPR]   )  ||
+   (id_class[SCARV_COP_ICLASS_SHA3  ]          )  ||
+   (id_class[SCARV_COP_ICLASS_RANDOM]  &&
+    id_subclass[SCARV_COP_SCLASS_RTEST]     )  ||
+   (id_class[SCARV_COP_ICLASS_MP]      &&
+    (id_subclass[SCARV_COP_SCLASS_MEQU] ||
+     id_subclass[SCARV_COP_SCLASS_MLTE] ||
+     id_subclass[SCARV_COP_SCLASS_MGTE] ) )   ;
 
-assign n_cop_wdata = 
-    id_class[SCARV_COP_ICLASS_MOVE  ] ? palu_cpr_rd_wdata : 
-    id_class[SCARV_COP_ICLASS_SHA3  ] ? sha3_cpr_rd_wdata : 
-    id_class[SCARV_COP_ICLASS_RANDOM] ? rng_cpr_rd_wdata  : 
-                                        malu_cpr_rd_wdata ;
+ssign n_cop_wdata = 
+   id_class[SCARV_COP_ICLASS_MOVE  ] ? palu_cpr_rd_wdata : 
+   id_class[SCARV_COP_ICLASS_SHA3  ] ? sha3_cpr_rd_wdata : 
+   id_class[SCARV_COP_ICLASS_RANDOM] ? rng_cpr_rd_wdata  : 
+                                       malu_cpr_rd_wdata ;
 
-//
-//  and/or the result of the instruction together. Note
-//  SCARV_COP_INSN_SUCCESS == 0
-assign n_cop_result= 
-    id_exception ?  SCARV_COP_INSN_BAD_INS : (
-    {3{!mem_is_store & mem_addr_error}} & SCARV_COP_INSN_BAD_LAD |
-    {3{!mem_is_store & mem_bus_error }} & SCARV_COP_INSN_LD_ERR  |
-    {3{ mem_is_store & mem_addr_error}} & SCARV_COP_INSN_BAD_SAD |
-    {3{ mem_is_store & mem_bus_error }} & SCARV_COP_INSN_ST_ERR  |
-                                          SCARV_COP_INSN_SUCCESS );
+/
+/  and/or the result of the instruction together. Note
+/  SCARV_COP_INSN_SUCCESS == 0
+ssign n_cop_result= 
+   id_exception ?  SCARV_COP_INSN_BAD_INS : (
+   {3{!mem_is_store & mem_addr_error}} & SCARV_COP_INSN_BAD_LAD |
+   {3{!mem_is_store & mem_bus_error }} & SCARV_COP_INSN_LD_ERR  |
+   {3{ mem_is_store & mem_addr_error}} & SCARV_COP_INSN_BAD_SAD |
+   {3{ mem_is_store & mem_bus_error }} & SCARV_COP_INSN_ST_ERR  |
+                                         SCARV_COP_INSN_SUCCESS );
 
 
-wire [31:0] u_insn_enc;
-wire [31:0] u_rs1;
-wire [31:0] u_rs2;
+ire [31:0] u_insn_enc;
+ire [31:0] u_rs1;
+ire [31:0] u_rs2;
 
-//
-// Start of generate statements to switch between the "fast" and
-// "normal" interface protocols.
-//
+/
+/ Start of generate statements to switch between the "fast" and
+/ "normal" interface protocols.
+/
 
-generate if(FAST_COP_CPU_IF == 0) begin
+enerate if(FAST_COP_CPU_IF == 0) begin
 
-    reg            r_cop_wen   ; // COP write enable
-    reg [ 4:0]     r_cop_waddr ; // COP destination register address
-    reg [31:0]     r_cop_wdata ; // COP write data
-    reg [ 2:0]     r_cop_result; // COP execution result
+   reg            r_cop_wen   ; // COP write enable
+   reg [ 4:0]     r_cop_waddr ; // COP destination register address
+   reg [31:0]     r_cop_wdata ; // COP write data
+   reg [ 2:0]     r_cop_result; // COP execution result
 
-    //
-    // COP Output response registers
-    always @(posedge g_clk) if(!g_resetn) begin
-        r_cop_wen    <= 1'b0; // COP write enable
-        r_cop_waddr  <= 5'b0; // COP destination register address
-        r_cop_wdata  <= 32'b0; // COP write data
-        r_cop_result <= 3'b0; // COP execution result
-    end else if(insn_finish) begin
-        r_cop_wen    <= n_cop_wen   ; // COP write enable
-        r_cop_waddr  <= n_cop_waddr ; // COP destination register address
-        r_cop_wdata  <= n_cop_wdata ; // COP write data
-        r_cop_result <= n_cop_result; // COP execution result
-    end
-    
-    assign cop_wen    = r_cop_wen   ;
-    assign cop_waddr  = r_cop_waddr ;
-    assign cop_wdata  = r_cop_wdata ;
-    assign cop_result = r_cop_result;
+   //
+   // COP Output response registers
+   always @(posedge g_clk) if(!g_resetn) begin
+       r_cop_wen    <= 1'b0; // COP write enable
+       r_cop_waddr  <= 5'b0; // COP destination register address
+       r_cop_wdata  <= 32'b0; // COP write data
+       r_cop_result <= 3'b0; // COP execution result
+   end else if(insn_finish) begin
+       r_cop_wen    <= n_cop_wen   ; // COP write enable
+       r_cop_waddr  <= n_cop_waddr ; // COP destination register address
+       r_cop_wdata  <= n_cop_wdata ; // COP write data
+       r_cop_result <= n_cop_result; // COP execution result
+   end
+   
+   assign cop_wen    = r_cop_wen   ;
+   assign cop_waddr  = r_cop_waddr ;
+   assign cop_wdata  = r_cop_wdata ;
+   assign cop_result = r_cop_result;
 
-    //
-    // Register inputs to the COP
-    reg  [31:0] r_insn_enc;
-    reg  [31:0] r_rs1;
-    reg  [31:0] r_rs2;
+   //
+   // Register inputs to the COP
+   reg  [31:0] r_insn_enc;
+   reg  [31:0] r_rs1;
+   reg  [31:0] r_rs2;
 
-    assign u_insn_enc = (insn_accept) ? cpu_insn_enc : r_insn_enc;
-    assign u_rs1      = (insn_accept) ? cpu_rs1      : r_rs1     ;
-    assign u_rs2      = (insn_accept) ? cpu_rs2      : r_rs2     ;
+   assign u_insn_enc = (insn_accept) ? cpu_insn_enc : r_insn_enc;
+   assign u_rs1      = (insn_accept) ? cpu_rs1      : r_rs1     ;
+   assign u_rs2      = (insn_accept) ? cpu_rs2      : r_rs2     ;
 
-    always @(posedge g_clk) if(!g_resetn) begin
-            r_insn_enc <= 32'b0;
-        end else if(cpu_insn_req && cop_insn_ack)
-            r_insn_enc <= cpu_insn_enc;    
+   always @(posedge g_clk) if(!g_resetn) begin
+           r_insn_enc <= 32'b0;
+       end else if(cpu_insn_req && cop_insn_ack)
+           r_insn_enc <= cpu_insn_enc;    
 
-    always @(posedge g_clk) if(!g_resetn) begin
-            r_rs1      <= 32'b0;
-        end else if(cpu_insn_req && cop_insn_ack)
-            r_rs1      <= cpu_rs1     ;    
-    
-    always @(posedge g_clk) if(!g_resetn) begin
-            r_rs2      <= 32'b0;
-        end else if(cpu_insn_req && cop_insn_ack)
-            r_rs2      <= cpu_rs2     ;    
+   always @(posedge g_clk) if(!g_resetn) begin
+           r_rs1      <= 32'b0;
+       end else if(cpu_insn_req && cop_insn_ack)
+           r_rs1      <= cpu_rs1     ;    
+   
+   always @(posedge g_clk) if(!g_resetn) begin
+           r_rs2      <= 32'b0;
+       end else if(cpu_insn_req && cop_insn_ack)
+           r_rs2      <= cpu_rs2     ;    
 
-end else if(FAST_COP_CPU_IF == 1) begin
-        
-    assign cop_wen    = n_cop_wen   ; // COP write enable
-    assign cop_waddr  = n_cop_waddr ; // COP destination register address
-    assign cop_wdata  = n_cop_wdata ; // COP write data
-    assign cop_result = n_cop_result; // COP execution result
+nd else if(FAST_COP_CPU_IF == 1) begin
+       
+   assign cop_wen    = n_cop_wen   ; // COP write enable
+   assign cop_waddr  = n_cop_waddr ; // COP destination register address
+   assign cop_wdata  = n_cop_wdata ; // COP write data
+   assign cop_result = n_cop_result; // COP execution result
 
     assign u_insn_enc = cpu_insn_enc;
     assign u_rs1      = cpu_rs1     ;
@@ -447,21 +447,21 @@ end endgenerate
 //  The instruction decoder for the ISE.
 //
 scarv_cop_idecode i_scarv_cop_idecode (
-.id_encoded  (u_insn_enc  ), // Encoding 32-bit instruction
-.id_exception(id_exception), // Illegal instruction exception.
-.id_class    (id_class    ), // Instruction class.
-.id_subclass (id_subclass ), // Instruction subclass.
-.id_pw       (id_pw       ), // Instruction pack width.
+.id_encoded  (u_insn_enc  ), // encoding 32-bit instruction
+.id_exception(id_exception), // illegal instruction exception.
+.id_class    (id_class    ), // instruction class.
+.id_subclass (id_subclass ), // instruction subclass.
+.id_pw       (id_pw       ), // instruction pack width.
 .id_cprs_init(id_cprs_init), // xc.init executing.
-.id_crs1     (id_crs1     ), // Instruction source register 1
-.id_crs2     (id_crs2     ), // Instruction source register 2
-.id_crs3     (id_crs3     ), // Instruction source register 3
-.id_crd      (id_crd      ), // Instruction destination register
-.id_crd1     (id_crd1     ), // MP Instruction destination register 1
-.id_crd2     (id_crd2     ), // MP Instruction destination register 2
-.id_rd       (id_rd       ), // GPR destination register
-.id_rs1      (id_rs1      ), // GPR source register
-.id_imm      (id_imm      ), // Decoded immediate.
+.id_crs1     (id_crs1     ), // instruction source register 1
+.id_crs2     (id_crs2     ), // instruction source register 2
+.id_crs3     (id_crs3     ), // instruction source register 3
+.id_crd      (id_crd      ), // instruction destination register
+.id_crd1     (id_crd1     ), // mp instruction destination register 1
+.id_crd2     (id_crd2     ), // mp instruction destination register 2
+.id_rd       (id_rd       ), // gpr destination register
+.id_rs1      (id_rs1      ), // gpr source register
+.id_imm      (id_imm      ), // decoded immediate.
 .id_wb_h     (id_wb_h     ),
 .id_wb_b     (id_wb_b     )
 );
