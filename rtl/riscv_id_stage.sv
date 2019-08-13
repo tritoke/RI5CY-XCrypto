@@ -86,11 +86,14 @@ module riscv_id_stage
     output logic [1:0]  exc_pc_mux_o,
     output logic        trap_addr_mux_o,
 
+    output logic        cprs_init, // XCrypto init
+
     input  logic        illegal_c_insn_i,
     input  logic        is_compressed_i,
 
     input  logic [31:0] pc_if_i,
     input  logic [31:0] pc_id_i,
+
 
     // Stalls
     output logic        halt_if_o,      // controller requests a halt of the IF stage
@@ -1142,7 +1145,7 @@ module riscv_id_stage
   xcrypto_decoder
   (
     .id_encoded                      ( instr                     ), // Encoding 32-bit instruction
-    .id_exception                    ( xcryto_illegal            ), // Illegal instruction exception.
+    .id_exception                    ( xcrypto_illegal            ), // Illegal instruction exception.
     .id_class                        ( id_class                  ), // Instruction class.
     .id_subclass                     ( id_subclass               ), // Instruction subclass.
     .id_pw                           ( id_pw                     ), // Instruction pack width.
@@ -1160,8 +1163,8 @@ module riscv_id_stage
     .id_wb_b                         ( id_wb_b                   )
   );
 
-  assign illegal_insn_dec = riscv_illegal & xcryto_illegal;
-  assign cprs_init = id_cprs_init ? 1 : cprs_init & (!cprs_init_done);
+  assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
+  assign cprs_init = id_cprs_init & (~cprs_init_done);
 
   scarv_cop_cprs
   xcrypto_registers

@@ -86,6 +86,9 @@ module riscv_ex_stage
   output logic [C_FFLAG-1:0]          fpu_fflags_o,
   output logic                        fpu_fflags_we_o,
 
+  // XCrypto signals
+  input  logic                        cprs_init, // init executing
+
   // APU signals
   input  logic                        apu_en_i,
   input  logic [APU_WOP_CPU-1:0]      apu_op_i,
@@ -478,8 +481,8 @@ module riscv_ex_stage
   // to finish branches without going to the WB stage, ex_valid does not
   // depend on ex_ready.
   assign ex_ready_o = (~apu_stall & alu_ready & mult_ready & lsu_ready_ex_i
-                       & wb_ready_i & ~wb_contention) | (branch_in_ex_i);
+                       & wb_ready_i & ~wb_contention & ~cprs_init) | (branch_in_ex_i);
   assign ex_valid_o = (apu_valid | alu_en_i | mult_en_i | csr_access_i | lsu_en_i)
-                       & (alu_ready & mult_ready & lsu_ready_ex_i & wb_ready_i);
+                       & (alu_ready & mult_ready & lsu_ready_ex_i & wb_ready_i & ~cprs_init);
 
 endmodule

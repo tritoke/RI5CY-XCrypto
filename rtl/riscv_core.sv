@@ -141,6 +141,8 @@ module riscv_core
   logic [31:0]       pc_if;             // Program counter in IF stage
   logic [31:0]       pc_id;             // Program counter in ID stage
 
+  logic              cprs_init; // XCrypto register init executing
+
   logic              clear_instr_valid;
   logic              pc_set;
   logic [2:0]        pc_mux_id;     // Mux selector for next PC
@@ -576,6 +578,9 @@ module riscv_core
     .exc_pc_mux_o                 ( exc_pc_mux_id        ),
     .exc_cause_o                  ( exc_cause            ),
     .trap_addr_mux_o              ( trap_addr_mux        ),
+
+    .cprs_init                    ( cprs_init            ), // XCrypto init
+
     .illegal_c_insn_i             ( illegal_c_insn_id    ),
     .is_compressed_i              ( is_compressed_id     ),
 
@@ -789,6 +794,9 @@ module riscv_core
     .fpu_prec_i                 ( fprec_csr                    ),
     .fpu_fflags_o               ( fflags                       ),
     .fpu_fflags_we_o            ( fflags_we                    ),
+
+    // XCrypto
+    .cprs_init                  ( cprs_init                    ),
 
     // APU
     .apu_en_i                   ( apu_en_ex                    ),
