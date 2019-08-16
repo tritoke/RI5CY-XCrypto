@@ -98,7 +98,7 @@ $(EXE): $(VLIB) $(VOBJS) $(OBJS) $(BIN)
 	$(LD) -o $@ $(OBJS) $(VLIB) $(VOBJS)
 
 $(BIN): $(PROG)
-	$(OBJC) --dump-section .text=$(BIN) $(PROG)
+	$(OBJC) --dump-section .text=$(BIN) $(PROG).o
 
 $(PROG): $(PROG).s
 	$(AS) $(PROG).s -march=rv32ix -o $(PROG).o

@@ -263,7 +263,7 @@ void loadProgram()
 
   const auto &dp_ram = cpu->top->ram_i->dp_ram_i;
 
-  ifstream program_stream ("program.bin", ios::binary);
+  ifstream program_stream ("program.hex", ios::binary);
   
   uint8_t byte;
   while (!program_stream.eof()) {

@@ -151,10 +151,10 @@ module riscv_id_stage
     output logic [ 2:0] id_pw,             // Instruction pack width.
     output logic [31:0] id_imm,            // Decoded immediate.
 
-    output logic [31:0] u_rs1,             // GPR source register
-    output logic [31:0] palu_rs1,          // Instruction source register 1
-    output logic [31:0] palu_rs2,          // Instruction source register 2
-    output logic [31:0] palu_rs3,          // Instruction source register 3
+    output logic [31:0] gpr_rs1,             // GPR source register
+    output logic [31:0] crs1_rdata,          // Instruction source register 1
+    output logic [31:0] crs2_rdata,          // Instruction source register 2
+    output logic [31:0] crs3_rdata,          // Instruction source register 3
 
     input logic  [ 3:0] palu_cpr_rd_ben,   // Writeback byte enable
     input logic  [31:0] palu_cpr_rd_wdata, // Writeback data
@@ -312,15 +312,12 @@ module riscv_id_stage
 
   logic        crs1_ren = 1'b1;     // Port 1 read enable
   logic [ 3:0] crs1_addr = id_crs1; // Port 1 address
-  logic [31:0] crs1_rdata;          // Port 1 read data
 
   logic        crs2_ren = 1'b1;     // Port 2 read enable
   logic [ 3:0] crs2_addr = id_crs2; // Port 2 address
-  logic [31:0] crs2_rdata;          // Port 2 read data
 
   logic        crs3_ren = 1'b1;     // Port 3 read enable
   logic [ 3:0] crs3_addr = id_crs3; // Port 4 address
-  logic [31:0] crs3_rdata;          // Port 3 read data
 
   logic [ 3:0] crd_wen;             // Port 4 write enable
   logic [ 3:0] crd_addr;            // Port 4 address
@@ -1025,7 +1022,7 @@ module riscv_id_stage
   );
 
   assign dbg_reg_rdata_o = regfile_data_rc_id;
-  assign u_rs1 = regfile_data_ra_id;
+  assign gpr_rs1 = regfile_data_ra_id;
 
 
   ///////////////////////////////////////////////
@@ -1176,10 +1173,6 @@ module riscv_id_stage
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
   assign cprs_init = id_cprs_init & (~cprs_init_done);
-
-  assign palu_rs1 = crs1_rdata;
-  assign palu_rs2 = crs2_rdata;
-  assign palu_rs3 = crs3_rdata;
 
   assign crd_wen   = palu_cpr_rd_ben;//|
                    //mem_cpr_rd_ben  |

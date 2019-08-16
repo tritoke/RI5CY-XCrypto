@@ -64,7 +64,7 @@ reg [7:0] cprs_3 [15:0];
 genvar i;
 wire [31:0] cprs[15:0];
 
-generate for(i = 0; i < 16; i = i + 1) begin
+generate for(i = 0; i < 15; i = i + 1) begin
     assign cprs[i] = {cprs_3[i],cprs_2[i],cprs_1[i],cprs_0[i]};
 
     always @(posedge g_clk) if(!g_resetn) cprs_0[i] <= $anyconst;
@@ -82,12 +82,12 @@ end endgenerate
 reg  [4:0] init_fsm;
 wire [4:0] n_init_fsm = init_fsm + 1;
 
-assign cprs_init_done = init_fsm == 15;
+assign cprs_init_done = init_fsm == 16;
 
 always @(posedge g_clk) begin
     if(cprs_init) begin
         $display("Initialising FSM: init_fsm=%d\n", init_fsm);
-        init_fsm <= init_fsm == 15 ? 15 : n_init_fsm;
+        init_fsm <= init_fsm == 16 ? 16 : n_init_fsm;
     end else begin
         init_fsm <= 0;
     end
@@ -115,7 +115,7 @@ assign crs3_rdata = {32{crs3_ren}} &
 //
 
 always @(posedge g_clk) if(wen[3]) cprs_3[addr] <= wdata[31:24];
-always @(posedge g_clk) if(wen[2]) cprs_2[addr] <= wdata[23:16];
+always @(posedge g_clk) if(wen[2]) cprs_2[addr] <= wdata[23:15];
 always @(posedge g_clk) if(wen[1]) cprs_1[addr] <= wdata[15: 8];
 always @(posedge g_clk) if(wen[0]) cprs_0[addr] <= wdata[ 7: 0];
 

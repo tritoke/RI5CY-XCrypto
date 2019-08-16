@@ -94,10 +94,10 @@ module riscv_ex_stage
   input logic [ 2:0]    id_pw,        // Instruction pack width.
   input logic [31:0]    id_imm,       // Decoded immediate.
 
-  input logic [31:0]    u_rs1,        // GPR rs1
-  input logic [31:0]    palu_rs1,     // CPR Port 1 read data
-  input logic [31:0]    palu_rs2,     // CPR Port 2 read data
-  input logic [31:0]    palu_rs3,     // CPR Port 3 read data
+  input logic [31:0]    gpr_rs1,        // GPR rs1
+  input logic [31:0]    crs1_rdata,     // CPR Port 1 read data
+  input logic [31:0]    crs2_rdata,     // CPR Port 2 read data
+  input logic [31:0]    crs3_rdata,     // CPR Port 3 read data
 
   output logic [ 3:0]   palu_cpr_rd_ben,   // Writeback byte enable
   output logic [31:0]   palu_cpr_rd_wdata, // Writeback data
@@ -499,10 +499,10 @@ module riscv_ex_stage
     .g_resetn           ( rst_n             ), // Synchronous active low reset.
     .palu_ivalid        ( palu_ivalid       ), // Valid instruction input
     .palu_idone         ( palu_idone        ), // Instruction complete
-    .gpr_rs1            ( u_rs1             ), // GPR rs1
-    .palu_rs1           ( palu_rs1          ), // Source register 1
-    .palu_rs2           ( palu_rs2          ), // Source register 2
-    .palu_rs3           ( palu_rs3          ), // Source register 3
+    .gpr_rs1            ( gpr_rs1             ), // GPR rs1
+    .palu_rs1           ( crs1_rdata        ), // Source register 1
+    .palu_rs2           ( crs2_rdata        ), // Source register 2
+    .palu_rs3           ( crs3_rdata        ), // Source register 3
     .id_imm             ( id_imm            ), // Source immedate
     .id_pw              ( id_pw             ), // Pack width
     .id_class           ( id_class          ), // Instruction class
@@ -510,6 +510,28 @@ module riscv_ex_stage
     .palu_cpr_rd_ben    ( palu_cpr_rd_ben   ), // Writeback byte enable
     .palu_cpr_rd_wdata  ( palu_cpr_rd_wdata )  // Writeback data
   );
+
+
+  //
+  // instance: scarv_cop_malu
+  //
+  //  Multi-precision arithmetic and shift module.
+  //
+//scarv_cop_malu i_scarv_cop_malu (
+//  .g_clk              ( clk               ), // Global clock
+//  .g_resetn           ( rst_n             ), // Synchronous active low reset.
+//  .malu_ivalid        ( malu_ivalid       ), // Valid instruction input
+//  .malu_idone         ( malu_idone        ), // Instruction complete
+//  .malu_rdm_in_rs     ( malu_rdm_in_rs    ),
+//  .gpr_rs1            ( gpr_rs1             ),
+//  .malu_rs1           ( crs1_rdata        ), // Source register 1
+//  .malu_rs2           ( crs2_rdata        ), // Source register 2
+//  .malu_rs3           ( crs3_rdata        ), // Source register 3
+//  .id_imm             ( id_imm            ), // Source immedate
+//  .id_subclass        ( id_subclass       ), // Instruction subclass
+//  .malu_cpr_rd_ben    ( malu_cpr_rd_ben   ), // Writeback byte enable
+//  .malu_cpr_rd_wdata  ( malu_cpr_rd_wdata )  // Writeback data
+//);
 
 
   ///////////////////////////////////////

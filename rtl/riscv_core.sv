@@ -211,10 +211,10 @@ module riscv_core
   logic [ 2:0] id_pw;              // Instruction pack width.
   logic [31:0] id_imm;             // Decoded immediate.
 
-  logic [31:0] u_rs1;              // GPR rs1
-  logic [31:0] palu_rs1;           // XCR source register 1 data
-  logic [31:0] palu_rs2;           // XCR source register 2 data
-  logic [31:0] palu_rs3;           // XCR source register 3 data
+  logic [31:0] gpr_rs1;            // GPR rs1
+  logic [31:0] crs1_rdata;         // XCR source register 1 data
+  logic [31:0] crs2_rdata;         // XCR source register 2 data
+  logic [31:0] crs3_rdata;         // XCR source register 3 data
 
   logic [ 3:0] palu_cpr_rd_ben;    // Writeback byte enable
   logic [31:0] palu_cpr_rd_wdata;  // Writeback data
@@ -653,10 +653,10 @@ module riscv_core
     .id_pw                        ( id_pw                ), // Pack width
     .id_imm                       ( id_imm               ), // Source immedate
                                     
-    .u_rs1                        ( u_rs1                ), // GPR rs1
-    .palu_rs1                     ( palu_rs1             ), // Source register 1
-    .palu_rs2                     ( palu_rs2             ), // Source register 2
-    .palu_rs3                     ( palu_rs3             ), // Source register 3
+    .gpr_rs1                      ( gpr_rs1              ), // GPR rs1
+    .crs1_rdata                   ( crs1_rdata           ), // Source register 1
+    .crs2_rdata                   ( crs2_rdata           ), // Source register 2
+    .crs3_rdata                   ( crs3_rdata           ), // Source register 3
 
     .palu_cpr_rd_ben              ( palu_cpr_rd_ben      ), // Writeback byte enable
     .palu_cpr_rd_wdata            ( palu_cpr_rd_wdata    ), // Writeback data
@@ -830,10 +830,10 @@ module riscv_core
     .id_pw                      ( id_pw                        ), // instruction pack width.
     .id_imm                     ( id_imm                       ), // decoded immediate.
 
-    .u_rs1                      ( u_rs1 ),    // GPR rs1
-    .palu_rs1                   ( palu_rs1 ), // instruction source register 1
-    .palu_rs2                   ( palu_rs2 ), // instruction source register 2
-    .palu_rs3                   ( palu_rs3 ), // instruction source register 3
+    .gpr_rs1                    ( gpr_rs1 ),    // GPR source register 1
+    .crs1_rdata                 ( crs1_rdata ), // instruction source register 1
+    .crs2_rdata                 ( crs2_rdata ), // instruction source register 2
+    .crs3_rdata                 ( crs3_rdata ), // instruction source register 3
 
     .palu_cpr_rd_ben            ( palu_cpr_rd_ben ),    // Writeback byte enable
     .palu_cpr_rd_wdata          ( palu_cpr_rd_wdata ),  // Writeback data
