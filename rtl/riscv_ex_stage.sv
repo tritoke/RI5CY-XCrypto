@@ -99,6 +99,9 @@ module riscv_ex_stage
   input logic [31:0]    palu_rs2,     // CPR Port 2 read data
   input logic [31:0]    palu_rs3,     // CPR Port 3 read data
 
+  output logic [ 3:0]   palu_cpr_rd_ben,   // Writeback byte enable
+  output logic [31:0]   palu_cpr_rd_wdata, // Writeback data
+
 
   // APU signals
   input  logic                        apu_en_i,
@@ -504,8 +507,8 @@ module riscv_ex_stage
     .id_pw              ( id_pw             ), // Pack width
     .id_class           ( id_class          ), // Instruction class
     .id_subclass        ( id_subclass       ), // Instruction subclass
-  //.palu_cpr_rd_ben    ( palu_cpr_rd_ben   ), // Writeback byte enable
-  //.palu_cpr_rd_wdata  ( palu_cpr_rd_wdata )  // Writeback data
+    .palu_cpr_rd_ben    ( palu_cpr_rd_ben   ), // Writeback byte enable
+    .palu_cpr_rd_wdata  ( palu_cpr_rd_wdata )  // Writeback data
   );
 
 

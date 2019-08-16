@@ -146,15 +146,18 @@ module riscv_id_stage
     output logic [C_CMD-1:0]           fpu_op_ex_o,
 
     // XCrypto
-    output logic [ 8:0] id_class,     // Instruction class.
-    output logic [15:0] id_subclass,  // Instruction subclass.
-    output logic [ 2:0] id_pw,        // Instruction pack width.
-    output logic [31:0] id_imm,       // Decoded immediate.
+    output logic [ 8:0] id_class,          // Instruction class.
+    output logic [15:0] id_subclass,       // Instruction subclass.
+    output logic [ 2:0] id_pw,             // Instruction pack width.
+    output logic [31:0] id_imm,            // Decoded immediate.
 
-    output logic [31:0] u_rs1,        // GPR source register
-    output logic [31:0] palu_rs1,     // Instruction source register 1
-    output logic [31:0] palu_rs2,     // Instruction source register 2
-    output logic [31:0] palu_rs3,     // Instruction source register 3
+    output logic [31:0] u_rs1,             // GPR source register
+    output logic [31:0] palu_rs1,          // Instruction source register 1
+    output logic [31:0] palu_rs2,          // Instruction source register 2
+    output logic [31:0] palu_rs3,          // Instruction source register 3
+
+    input logic  [ 3:0] palu_cpr_rd_ben,   // Writeback byte enable
+    input logic  [31:0] palu_cpr_rd_wdata, // Writeback data
 
     // APU
     output logic                        apu_en_ex_o,
@@ -1153,7 +1156,7 @@ module riscv_id_stage
   xcrypto_decoder
   (
     .id_encoded                      ( instr                     ), // Encoding 32-bit instruction
-    .id_exception                    ( xcrypto_illegal            ), // Illegal instruction exception.
+    .id_exception                    ( xcrypto_illegal           ), // Illegal instruction exception.
     .id_class                        ( id_class                  ), // Instruction class.
     .id_subclass                     ( id_subclass               ), // Instruction subclass.
     .id_pw                           ( id_pw                     ), // Instruction pack width.
@@ -1177,6 +1180,24 @@ module riscv_id_stage
   assign palu_rs1 = crs1_rdata;
   assign palu_rs2 = crs2_rdata;
   assign palu_rs3 = crs3_rdata;
+
+  assign crd_wen   = palu_cpr_rd_ben;//|
+                   //mem_cpr_rd_ben  |
+                   //malu_cpr_rd_ben |
+                   //rng_cpr_rd_ben  |
+                   //aes_cpr_rd_ben  |
+                   //perm_cpr_rd_ben ;
+    
+//assign crd_addr  = !malu_ivalid ? id_crd :
+//                   !malu_idone  ? id_crd1:
+//                                  id_crd2;
+
+  assign crd_wdata = palu_cpr_rd_wdata;//|
+                   //mem_cpr_rd_wdata  |
+                   //malu_cpr_rd_wdata |
+                   //rng_cpr_rd_wdata  |
+                   //aes_cpr_rd_wdata  |
+                   //perm_cpr_rd_wdata ;
 
   scarv_cop_cprs
   xcrypto_registers

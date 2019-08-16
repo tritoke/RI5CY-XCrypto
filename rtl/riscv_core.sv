@@ -206,15 +206,18 @@ module riscv_core
   logic                       fflags_we;
 
   // XCrypto
-  logic [ 8:0] id_class;         // Instruction class.
-  logic [15:0] id_subclass;      // Instruction subclass.
-  logic [ 2:0] id_pw;            // Instruction pack width.
-  logic [31:0] id_imm;           // Decoded immediate.
+  logic [ 8:0] id_class;           // Instruction class.
+  logic [15:0] id_subclass;        // Instruction subclass.
+  logic [ 2:0] id_pw;              // Instruction pack width.
+  logic [31:0] id_imm;             // Decoded immediate.
 
-  logic [31:0] u_rs1;            // GPR rs1
-  logic [31:0] palu_rs1;         // XCR source register 1 data
-  logic [31:0] palu_rs2;         // XCR source register 2 data
-  logic [31:0] palu_rs3;         // XCR source register 3 data
+  logic [31:0] u_rs1;              // GPR rs1
+  logic [31:0] palu_rs1;           // XCR source register 1 data
+  logic [31:0] palu_rs2;           // XCR source register 2 data
+  logic [31:0] palu_rs3;           // XCR source register 3 data
+
+  logic [ 3:0] palu_cpr_rd_ben;    // Writeback byte enable
+  logic [31:0] palu_cpr_rd_wdata;  // Writeback data
 
   // APU
   logic                        apu_en_ex;
@@ -655,6 +658,9 @@ module riscv_core
     .palu_rs2                     ( palu_rs2             ), // Source register 2
     .palu_rs3                     ( palu_rs3             ), // Source register 3
 
+    .palu_cpr_rd_ben              ( palu_cpr_rd_ben      ), // Writeback byte enable
+    .palu_cpr_rd_wdata            ( palu_cpr_rd_wdata    ), // Writeback data
+
     // APU
     .apu_en_ex_o                  ( apu_en_ex            ),
     .apu_type_ex_o                ( apu_type_ex          ),
@@ -828,6 +834,9 @@ module riscv_core
     .palu_rs1                   ( palu_rs1 ), // instruction source register 1
     .palu_rs2                   ( palu_rs2 ), // instruction source register 2
     .palu_rs3                   ( palu_rs3 ), // instruction source register 3
+
+    .palu_cpr_rd_ben            ( palu_cpr_rd_ben ),    // Writeback byte enable
+    .palu_cpr_rd_wdata          ( palu_cpr_rd_wdata ),  // Writeback data
 
     // APU
     .apu_en_i                   ( apu_en_ex                    ),

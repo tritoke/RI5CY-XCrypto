@@ -190,23 +190,23 @@ assign perm_ivalid  = insn_valid && id_class[SCARV_COP_ICLASS_PERMUTE];
 //  CPR writeback muxing from the functional units.
 //
 
-ssign crd_wen   = palu_cpr_rd_ben |
-                  mem_cpr_rd_ben  |
-                  malu_cpr_rd_ben |
-                  rng_cpr_rd_ben  |
-                  aes_cpr_rd_ben  |
-                  perm_cpr_rd_ben ;
+assign crd_wen   = palu_cpr_rd_ben |
+                   mem_cpr_rd_ben  |
+                   malu_cpr_rd_ben |
+                   rng_cpr_rd_ben  |
+                   aes_cpr_rd_ben  |
+                   perm_cpr_rd_ben ;
+  
+assign crd_addr  = !malu_ivalid ? id_crd :
+                   !malu_idone  ? id_crd1:
+                                  id_crd2;
 
-ssign crd_addr  = !malu_ivalid ? id_crd :
-                  !malu_idone  ? id_crd1:
-                                 id_crd2;
-
-ssign crd_wdata = palu_cpr_rd_wdata |
-                  mem_cpr_rd_wdata  |
-                  malu_cpr_rd_wdata |
-                  rng_cpr_rd_wdata  |
-                  aes_cpr_rd_wdata  |
-                  perm_cpr_rd_wdata ;
+assign crd_wdata = palu_cpr_rd_wdata |
+                   mem_cpr_rd_wdata  |
+                   malu_cpr_rd_wdata |
+                   rng_cpr_rd_wdata  |
+                   aes_cpr_rd_wdata  |
+                   perm_cpr_rd_wdata ;
 
 /
 / GPR Writeback data and instruction result selection

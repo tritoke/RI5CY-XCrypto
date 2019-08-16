@@ -23,6 +23,8 @@ CPPFLAGS = -I$(VDIR) `pkg-config --cflags verilator`
 CXXFLAGS = -Wall -Werror -std=c++11 -faligned-new
 CXX = g++
 LD = g++
+AS = riscv32-unknown-elf-as
+OBJC = riscv32-unknown-elf-objcopy
 
 # Testbench
 
@@ -31,6 +33,10 @@ SRC = testbench.cpp
 OBJS = testbench.o
 
 EXE = testbench
+
+PROG = program
+
+BIN = program.bin
 
 # top module name
 
@@ -88,8 +94,14 @@ VMK  = $(VDIR)/$(VSMK)
 
 # Build the executable
 
-$(EXE): $(VLIB) $(VOBJS) $(OBJS)
+$(EXE): $(VLIB) $(VOBJS) $(OBJS) $(BIN)
 	$(LD) -o $@ $(OBJS) $(VLIB) $(VOBJS)
+
+$(BIN): $(PROG)
+	$(OBJC) --dump-section .text=$(BIN) $(PROG)
+
+$(PROG): $(PROG).s
+	$(AS) $(PROG).s -o $(PROG)
 
 $(VOBJS): $(VMK)
 	for f in $@; \
@@ -114,7 +126,12 @@ $(VMK): $(VSRC)
 	          --Mdir $(VDIR) --trace -DPULP_FPGA_EMUL -cc \
 	          +incdir+$(VINC) $(VSRC) $(SRC) --exe
 
+.PHONY: prog
+prog: 
+	$(AS) $(PROG).s -o $(PROG)
+	$(OBJC) --dump-section .text=$(BIN) $(PROG)
+
 .PHONY: clean
 clean:
 	$(RM) -r $(VDIR)
-	$(RM) $(EXE) $(OBJS)
+	$(RM) $(EXE) $(OBJS) $(BIN) $(PROG)
