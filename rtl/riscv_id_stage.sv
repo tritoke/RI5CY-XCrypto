@@ -1188,6 +1188,7 @@ module riscv_id_stage
                    //aes_cpr_rd_ben  |
                    //perm_cpr_rd_ben ;
     
+  assign crd_addr  = id_crd;
 //assign crd_addr  = !malu_ivalid ? id_crd :
 //                   !malu_idone  ? id_crd1:
 //                                  id_crd2;

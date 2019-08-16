@@ -5,3 +5,6 @@ testbench
 testbench.o
 # waves
 *.vcd
+
+program.o
+program.hex

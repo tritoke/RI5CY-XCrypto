@@ -36,7 +36,7 @@ EXE = testbench
 
 PROG = program
 
-BIN = program.bin
+BIN = program.hex
 
 # top module name
 
@@ -101,7 +101,7 @@ $(BIN): $(PROG)
 	$(OBJC) --dump-section .text=$(BIN) $(PROG)
 
 $(PROG): $(PROG).s
-	$(AS) $(PROG).s -o $(PROG)
+	$(AS) $(PROG).s -march=rv32ix -o $(PROG).o
 
 $(VOBJS): $(VMK)
 	for f in $@; \
@@ -125,11 +125,6 @@ $(VMK): $(VSRC)
 	          -Wno-UNOPTFLAT -Wno-WIDTH -Wno-fatal --top-module top \
 	          --Mdir $(VDIR) --trace -DPULP_FPGA_EMUL -cc \
 	          +incdir+$(VINC) $(VSRC) $(SRC) --exe
-
-.PHONY: prog
-prog: 
-	$(AS) $(PROG).s -o $(PROG)
-	$(OBJC) --dump-section .text=$(BIN) $(PROG)
 
 .PHONY: clean
 clean:
