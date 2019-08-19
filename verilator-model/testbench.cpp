@@ -22,6 +22,7 @@
 #include "Vtop__Syms.h"
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <cstdint>
 #include <cstdlib>
@@ -263,11 +264,15 @@ void loadProgram()
 
   const auto &dp_ram = cpu->top->ram_i->dp_ram_i;
 
-  ifstream program_stream ("program.hex", ios::binary);
+  // open program.bin as a binary input stream
+  ifstream program_stream ("program.bin", ios::binary);
   
-  uint8_t byte;
-  while (!program_stream.eof()) {
-    program_stream.read((char *) &byte, sizeof(byte));
+  // read the contents of the program into buf
+  std::vector<unsigned char> buf(std::istreambuf_iterator<char>(program_stream), {});
+
+  // iterate over the bytes of the program we read into buf
+  for (uint8_t byte : buf) {
+    printf("Wrote byte 0x%02x at address 0x%02x\n", byte, addr);
     dp_ram->writeByte(addr++, byte);
   }
 

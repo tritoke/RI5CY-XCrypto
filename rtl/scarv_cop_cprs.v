@@ -115,7 +115,7 @@ assign crs3_rdata = {32{crs3_ren}} &
 //
 
 always @(posedge g_clk) if(wen[3]) cprs_3[addr] <= wdata[31:24];
-always @(posedge g_clk) if(wen[2]) cprs_2[addr] <= wdata[23:15];
+always @(posedge g_clk) if(wen[2]) cprs_2[addr] <= wdata[23:16];
 always @(posedge g_clk) if(wen[1]) cprs_1[addr] <= wdata[15: 8];
 always @(posedge g_clk) if(wen[0]) cprs_0[addr] <= wdata[ 7: 0];
 

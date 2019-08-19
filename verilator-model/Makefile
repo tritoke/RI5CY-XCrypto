@@ -25,6 +25,7 @@ CXX = g++
 LD = g++
 AS = riscv32-unknown-elf-as
 OBJC = riscv32-unknown-elf-objcopy
+LN = ln
 
 # Testbench
 
@@ -34,9 +35,15 @@ OBJS = testbench.o
 
 EXE = testbench
 
-PROG = program
+PROG = program.s
 
-BIN = program.hex
+OBJ = program.o
+
+BIN = program.bin
+
+UNIT ?= 00
+
+TEST = $(shell find . -name "$(UNIT)*.S")
 
 # top module name
 
@@ -97,11 +104,11 @@ VMK  = $(VDIR)/$(VSMK)
 $(EXE): $(VLIB) $(VOBJS) $(OBJS) $(BIN)
 	$(LD) -o $@ $(OBJS) $(VLIB) $(VOBJS)
 
-$(BIN): $(PROG)
-	$(OBJC) --dump-section .text=$(BIN) $(PROG).o
+$(BIN): $(OBJ)
+	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
 
-$(PROG): $(PROG).s
-	$(AS) $(PROG).s -march=rv32ix -o $(PROG).o
+$(OBJ): $(PROG)
+	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
 
 $(VOBJS): $(VMK)
 	for f in $@; \
@@ -126,7 +133,15 @@ $(VMK): $(VSRC)
 	          --Mdir $(VDIR) --trace -DPULP_FPGA_EMUL -cc \
 	          +incdir+$(VINC) $(VSRC) $(SRC) --exe
 
+.PHONY: unit
+unit:
+	$(RM) $(PROG) $(OBJ) $(BIN)
+	$(LN) -s $(TEST) $(PROG)
+	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
+	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
+
+
 .PHONY: clean
 clean:
 	$(RM) -r $(VDIR)
-	$(RM) $(EXE) $(OBJS) $(BIN) $(PROG)
+	$(RM) $(EXE) $(OBJS) $(BIN) $(OBJ)
