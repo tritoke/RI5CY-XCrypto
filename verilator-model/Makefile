@@ -43,7 +43,7 @@ BIN = program.bin
 
 UNIT ?= 00
 
-TEST = $(shell find . -name "$(UNIT)*.S")
+TEST = $(shell find . -name "$(UNIT).S")
 
 # top module name
 
@@ -81,12 +81,19 @@ VSRC = cluster_clock_gating.sv            \
        ../rtl/riscv_core.sv                   \
        ../rtl/riscv_apu_disp.sv               \
        ../rtl/riscv_L0_buffer.sv							\
-       ../rtl/scarv_cop_cprs.v							  \
-       ../rtl/scarv_cop_palu.v							  \
-       ../rtl/scarv_cop_palu_adder.v				  \
-       ../rtl/scarv_cop_palu_multiplier.v		  \
-       ../rtl/scarv_cop_palu_shifter.v  		  \
-       ../rtl/scarv_cop_idecode.v             
+       ../rtl/coprocessor/scarv_cop_cprs.v							  \
+       ../rtl/coprocessor/scarv_cop_palu.v							  \
+       ../rtl/coprocessor/scarv_cop_palu_adder.v				  \
+       ../rtl/coprocessor/scarv_cop_palu_multiplier.v		  \
+       ../rtl/coprocessor/scarv_cop_palu_shifter.v  		  \
+       ../rtl/coprocessor/scarv_cop_aes.v									\
+       ../rtl/coprocessor/scarv_cop_aes_sbox.v						\
+       ../rtl/coprocessor/scarv_cop_sha3.v								\
+       ../rtl/coprocessor/scarv_cop_mem.v 								\
+       ../rtl/coprocessor/scarv_cop_malu.v 								\
+       ../rtl/coprocessor/scarv_cop_permute.v							\
+       ../rtl/coprocessor/scarv_cop_rng.v							    \
+       ../rtl/coprocessor/scarv_cop_idecode.v             
        
 
 VINC = ../rtl/include
@@ -140,6 +147,9 @@ unit:
 	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
 	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
 
+.PHONY: run
+run: $(EXE)
+	./$(EXE)
 
 .PHONY: clean
 clean:

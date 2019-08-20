@@ -365,8 +365,7 @@ module riscv_decoder
         endcase
       end
 
-      OPCODE_LOAD,
-      OPCODE_LOAD_POST: begin
+      OPCODE_LOAD: begin
         data_req        = 1'b1;
         regfile_mem_we  = 1'b1;
         rega_used_o     = 1'b1;
@@ -376,13 +375,6 @@ module riscv_decoder
         alu_operator_o      = ALU_ADD;
         alu_op_b_mux_sel_o  = OP_B_IMM;
         imm_b_mux_sel_o     = IMMB_I;
-
-        // post-increment setup
-        if (instr_rdata_i[6:0] == OPCODE_LOAD_POST) begin
-          prepost_useincr_o       = 1'b0;
-          regfile_alu_waddr_sel_o = 1'b0;
-          regfile_alu_we          = 1'b1;
-        end
 
         // sign/zero extension
         data_sign_extension_o = ~instr_rdata_i[14];

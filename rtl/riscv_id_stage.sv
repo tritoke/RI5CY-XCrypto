@@ -146,18 +146,26 @@ module riscv_id_stage
     output logic [C_CMD-1:0]           fpu_op_ex_o,
 
     // XCrypto
-    output logic [ 8:0] id_class,          // Instruction class.
-    output logic [15:0] id_subclass,       // Instruction subclass.
-    output logic [ 2:0] id_pw,             // Instruction pack width.
-    output logic [31:0] id_imm,            // Decoded immediate.
+    output logic [ 8:0] id_class,         // Instruction class.
+    output logic [15:0] id_subclass,      // Instruction subclass.
+    output logic [ 2:0] id_pw,            // Instruction pack width.
+    output logic [31:0] id_imm,           // Decoded immediate.
 
-    output logic [31:0] gpr_rs1,             // GPR source register
-    output logic [31:0] crs1_rdata,          // Instruction source register 1
-    output logic [31:0] crs2_rdata,          // Instruction source register 2
-    output logic [31:0] crs3_rdata,          // Instruction source register 3
+    output logic [31:0] gpr_rs1,          // GPR source register
+    output logic [32:0] gpr_rs2,          // GPR source register
+    output logic [31:0] crs1_rdata,       // Instruction source register 1
+    output logic [31:0] crs2_rdata,       // Instruction source register 2
+    output logic [31:0] crs3_rdata,       // Instruction source register 3
 
-    input logic  [ 3:0] palu_cpr_rd_ben,   // Writeback byte enable
-    input logic  [31:0] palu_cpr_rd_wdata, // Writeback data
+    output logic [ 3:0] id_crd,           // Instruction destination register
+    output logic [ 3:0] id_crd1,          // MP Instruction destination register 1
+    output logic [ 3:0] id_crd2,          // MP Instruction destination register 2
+
+    input logic  [ 3:0] crd_wen,          // CPR Port 4 write enable
+    input logic  [ 3:0] crd_addr,         // CPR Port 4 address
+    input logic  [31:0] crd_wdata,        // CPR Port 4 write data
+
+    input logic         malu_rdm_in_rs,   // source destination registers in rs1/rs2
 
     // APU
     output logic                        apu_en_ex_o,
@@ -311,17 +319,14 @@ module riscv_id_stage
   logic        id_wb_b;             // Byte index (load/store)
 
   logic        crs1_ren = 1'b1;     // Port 1 read enable
-  logic [ 3:0] crs1_addr = id_crs1; // Port 1 address
+  logic [ 3:0] crs1_addr = malu_rdm_in_rs ? id_crd1 : id_crs1; // Port 1 address
 
   logic        crs2_ren = 1'b1;     // Port 2 read enable
-  logic [ 3:0] crs2_addr = id_crs2; // Port 2 address
+  logic [ 3:0] crs2_addr = malu_rdm_in_rs ? id_crd2 : id_crs2; // Port 2 address
 
   logic        crs3_ren = 1'b1;     // Port 3 read enable
-  logic [ 3:0] crs3_addr = id_crs3; // Port 4 address
+  logic [ 3:0] crs3_addr = malu_rdm_in_rs ? id_crs1 : id_crs3; // Port 4 address
 
-  logic [ 3:0] crd_wen;             // Port 4 write enable
-  logic [ 3:0] crd_addr;            // Port 4 address
-  logic [31:0] crd_wdata;           // Port 4 write data
 
   // Immediate decoding and sign extension
   logic [31:0] imm_i_type;
@@ -1023,6 +1028,7 @@ module riscv_id_stage
 
   assign dbg_reg_rdata_o = regfile_data_rc_id;
   assign gpr_rs1 = regfile_data_ra_id;
+  assign gpr_rs2 = regfile_data_rb_id;
 
 
   ///////////////////////////////////////////////
@@ -1173,25 +1179,6 @@ module riscv_id_stage
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
   assign cprs_init = id_cprs_init & (~cprs_init_done);
-
-  assign crd_wen   = palu_cpr_rd_ben;//|
-                   //mem_cpr_rd_ben  |
-                   //malu_cpr_rd_ben |
-                   //rng_cpr_rd_ben  |
-                   //aes_cpr_rd_ben  |
-                   //perm_cpr_rd_ben ;
-    
-  assign crd_addr  = id_crd;
-//assign crd_addr  = !malu_ivalid ? id_crd :
-//                   !malu_idone  ? id_crd1:
-//                                  id_crd2;
-
-  assign crd_wdata = palu_cpr_rd_wdata;//|
-                   //mem_cpr_rd_wdata  |
-                   //malu_cpr_rd_wdata |
-                   //rng_cpr_rd_wdata  |
-                   //aes_cpr_rd_wdata  |
-                   //perm_cpr_rd_wdata ;
 
   scarv_cop_cprs
   xcrypto_registers

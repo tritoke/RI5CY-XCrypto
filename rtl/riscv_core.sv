@@ -206,18 +206,26 @@ module riscv_core
   logic                       fflags_we;
 
   // XCrypto
-  logic [ 8:0] id_class;           // Instruction class.
-  logic [15:0] id_subclass;        // Instruction subclass.
-  logic [ 2:0] id_pw;              // Instruction pack width.
-  logic [31:0] id_imm;             // Decoded immediate.
+  logic [ 8:0] id_class;       // Instruction class.
+  logic [15:0] id_subclass;    // Instruction subclass.
+  logic [ 2:0] id_pw;          // Instruction pack width.
+  logic [31:0] id_imm;         // Decoded immediate.
 
-  logic [31:0] gpr_rs1;            // GPR rs1
-  logic [31:0] crs1_rdata;         // XCR source register 1 data
-  logic [31:0] crs2_rdata;         // XCR source register 2 data
-  logic [31:0] crs3_rdata;         // XCR source register 3 data
+  logic [31:0] gpr_rs1;        // GPR rs1
+  logic [31:0] gpr_rs2;        // GPR rs1
+  logic [31:0] crs1_rdata;     // XCR source register 1 data
+  logic [31:0] crs2_rdata;     // XCR source register 2 data
+  logic [31:0] crs3_rdata;     // XCR source register 3 data
 
-  logic [ 3:0] palu_cpr_rd_ben;    // Writeback byte enable
-  logic [31:0] palu_cpr_rd_wdata;  // Writeback data
+  logic [ 3:0] crd_wen;        // CPR Port 4 address
+  logic [ 3:0] crd_addr;        // CPR Port 4 address
+  logic [31:0] crd_wdata;      // CPR Port 4 write data
+
+  logic        malu_rdm_in_rs; // Source destination registers in rs1/rs2
+
+  logic [ 3:0] id_crd;         // Instruction destination register
+  logic [ 3:0] id_crd1;        // MP Instruction destination register 1
+  logic [ 3:0] id_crd2;        // MP Instruction destination register 2  logic [ 3:0] crd_wen;        // CPR Port 4 write enable
 
   // APU
   logic                        apu_en_ex;
@@ -654,12 +662,20 @@ module riscv_core
     .id_imm                       ( id_imm               ), // Source immedate
                                     
     .gpr_rs1                      ( gpr_rs1              ), // GPR rs1
+    .gpr_rs2                      ( gpr_rs2              ), // GPR rs2
     .crs1_rdata                   ( crs1_rdata           ), // Source register 1
     .crs2_rdata                   ( crs2_rdata           ), // Source register 2
     .crs3_rdata                   ( crs3_rdata           ), // Source register 3
 
-    .palu_cpr_rd_ben              ( palu_cpr_rd_ben      ), // Writeback byte enable
-    .palu_cpr_rd_wdata            ( palu_cpr_rd_wdata    ), // Writeback data
+    .crd_wen                      ( crd_wen              ), // CPR Port 4 write enable
+    .crd_wdata                    ( crd_wdata            ), // CPR Port 4 write data
+    .crd_addr                     ( crd_addr             ), // CPR Port 4 address
+
+    .id_crd                       ( id_crd               ), // Instruction destination register  
+    .id_crd1                      ( id_crd1              ), // MP Instruction destination register 1
+    .id_crd2                      ( id_crd2              ), // MP Instruction destination register 2
+
+    .malu_rdm_in_rs               ( malu_rdm_in_rs       ), // Source destiation registers in rs1/rs2
 
     // APU
     .apu_en_ex_o                  ( apu_en_ex            ),
@@ -830,13 +846,21 @@ module riscv_core
     .id_pw                      ( id_pw                        ), // instruction pack width.
     .id_imm                     ( id_imm                       ), // decoded immediate.
 
-    .gpr_rs1                    ( gpr_rs1 ),    // GPR source register 1
-    .crs1_rdata                 ( crs1_rdata ), // instruction source register 1
-    .crs2_rdata                 ( crs2_rdata ), // instruction source register 2
-    .crs3_rdata                 ( crs3_rdata ), // instruction source register 3
+    .gpr_rs1                    ( gpr_rs1                      ), // GPR source register 1
+    .gpr_rs2                    ( gpr_rs2                      ), // GPR source register 2
+    .crs1_rdata                 ( crs1_rdata                   ), // instruction source register 1
+    .crs2_rdata                 ( crs2_rdata                   ), // instruction source register 2
+    .crs3_rdata                 ( crs3_rdata                   ), // instruction source register 3
 
-    .palu_cpr_rd_ben            ( palu_cpr_rd_ben ),    // Writeback byte enable
-    .palu_cpr_rd_wdata          ( palu_cpr_rd_wdata ),  // Writeback data
+    .crd_wen                    ( crd_wen                      ), // Port 4 write enable
+    .crd_addr                   ( crd_addr                     ), // Port 4 address
+    .crd_wdata                  ( crd_wdata                    ), // Port 4 write data
+
+    .id_crd                     ( id_crd                       ), // Instruction destination register  
+    .id_crd1                    ( id_crd1                      ), // MP Instruction destination register 1
+    .id_crd2                    ( id_crd2                      ), // MP Instruction destination register 2
+
+    .malu_rdm_in_rs             ( malu_rdm_in_rs               ), // Source destiation registers in rs1/rs2
 
     // APU
     .apu_en_i                   ( apu_en_ex                    ),
