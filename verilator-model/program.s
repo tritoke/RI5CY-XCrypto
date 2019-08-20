@@ -1,1 +1,1 @@
-./verif/unit/03-bop.S
+./verif/unit/06-packed-shift.S
