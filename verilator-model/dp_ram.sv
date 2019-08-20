@@ -11,7 +11,7 @@
 
 module dp_ram
   #(
-    parameter ADDR_WIDTH = 8
+    parameter ADDR_WIDTH = 22 
   )(
     // Clock and Reset
     input  logic clk,

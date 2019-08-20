@@ -170,6 +170,24 @@ void checkProperties(void) {
   }
 }
 
+void writeInstr(uint32_t addr, uint32_t instr) {
+  const auto &dp_ram = cpu->top->ram_i->dp_ram_i;
+  //auto wbyte = cpu->top->ram_i->dp_ram_i->writeByte;
+  dp_ram->writeByte(addr + 0x0, (instr >> 0 ) & 0xFF);
+  dp_ram->writeByte(addr + 0x1, (instr >> 8 ) & 0xFF);
+  dp_ram->writeByte(addr + 0x2, (instr >> 16) & 0xFF);
+  dp_ram->writeByte(addr + 0x3, (instr >> 24) & 0xFF);
+}
+
+uint32_t readInstr(uint32_t addr) {
+  const auto &dp_ram = cpu->top->ram_i->dp_ram_i;
+  uint32_t instr = 0;
+  for (int i = 0; i < 4; i++) { 
+    instr |= (dp_ram->readByte(addr+i) << (8 * i));
+  }
+  return instr;
+}
+
 // Clock the CPU for a given number of cycles, dumping to the trace file at
 // each clock edge.
 void clockSpin(uint32_t cycles)
@@ -248,15 +266,6 @@ void waitForDebugStall()
   }
 }
 
-void writeInstr(uint32_t addr, uint32_t instr) {
-  const auto &dp_ram = cpu->top->ram_i->dp_ram_i;
-  //auto wbyte = cpu->top->ram_i->dp_ram_i->writeByte;
-  dp_ram->writeByte(addr + 0x0, (instr >> 0 ) & 0xFF);
-  dp_ram->writeByte(addr + 0x1, (instr >> 8 ) & 0xFF);
-  dp_ram->writeByte(addr + 0x2, (instr >> 16) & 0xFF);
-  dp_ram->writeByte(addr + 0x3, (instr >> 24) & 0xFF);
-}
-
 // Execution begins at 0x80, so that's where we write our code.
 void loadProgram()
 {
@@ -272,18 +281,8 @@ void loadProgram()
 
   // iterate over the bytes of the program we read into buf
   for (uint8_t byte : buf) {
-    printf("Wrote byte 0x%02x at address 0x%02x\n", byte, addr);
     dp_ram->writeByte(addr++, byte);
   }
-
-//const uint32_t instructions[] = {0x1000002b, 0x1100002b, 0x1110082b, 0x800002b, 0x810082b, 0x820002b, 0x1800082b, 0x1800002b, 0x2600002b, 0x2600082b, 0x2e00002b, 0x2e00082b, 0x2e08002b, 0x2e08082b, 0x3600002b, 0x3600082b, 0x3608082b, 0x3e00002b, 0x3e00082b, 0x3e08082b, 0xc00002b, 0x1400002b, 0x2400002b, 0x1c00002b, 0x3400002b, 0x400002b, 0x400082b, 0x408002b, 0x408082b, 0x500002b, 0x508002b, 0x200002b, 0x1200002b, 0x2200002b, 0x200082b, 0x1200082b, 0x2200082b, 0xa00082b, 0xa00002b, 0xb00082b, 0xb00002b, 0x682b, 0x702b, 0x1000702b, 0x2000702b, 0x3008702b, 0x4000702b, 0x6000702b, 0x5000702b, 0x5100702b, 0x5200702b, 0x5f00702b, 0x7000782b, 0x8000782b, 0x9000782b, 0xa000782b, 0xc000742b, 0x8000742b, 0x102b, 0x202b, 0x302b, 0x10302b, 0x10382b, 0x10202b, 0x10282b, 0x30202b, 0x30282b, 0x38202b, 0x38282b, 0x402b, 0x502b, 0x602b};
-
-//// write every instruction type to memory
-//for (const uint32_t instr : instructions) {
-//  writeInstr(addr, instr);
-//  addr += 4;
-//}
-
 }
 
 int
@@ -319,6 +318,7 @@ main (int    argc,
 
   // Let things run for a few cycles while the CPU waits in a halted state,
   // simply to check that doing so doesn't cause any errors.
+
   clockSpin(5);
 
   // Set traps on exceptions
