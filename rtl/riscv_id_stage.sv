@@ -146,6 +146,8 @@ module riscv_id_stage
     output logic [C_CMD-1:0]           fpu_op_ex_o,
 
     // XCrypto
+    output logic        xcrypto_valid,    // Valid XCrypto instruction.
+
     output logic [ 8:0] id_class,         // Instruction class.
     output logic [15:0] id_subclass,      // Instruction subclass.
     output logic [ 2:0] id_pw,            // Instruction pack width.
@@ -1178,6 +1180,7 @@ module riscv_id_stage
   );
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
+  assign xcrypto_valid = ~xcrypto_illegal;
   assign cprs_init = id_cprs_init & (~cprs_init_done);
 
   scarv_cop_cprs

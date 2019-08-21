@@ -155,7 +155,7 @@ module riscv_core
   // ID performance counter signals
   logic        is_decoding;
 
-  logic        useincr_addr_ex;   // Active when post increment
+  logic        useincr_addr_ex_id;   // Active when post increment
   logic        data_misaligned;
 
   logic        mult_multicycle;
@@ -206,10 +206,14 @@ module riscv_core
   logic                       fflags_we;
 
   // XCrypto
+  logic        xcrypto_valid;  // Valid Xcrypto instruction.
+
   logic [ 8:0] id_class;       // Instruction class.
   logic [15:0] id_subclass;    // Instruction subclass.
   logic [ 2:0] id_pw;          // Instruction pack width.
   logic [31:0] id_imm;         // Decoded immediate.
+  logic        id_wb_h;        // Halfword index (load/store)
+  logic        id_wb_b;        // Byte index (load/store)
 
   logic [31:0] gpr_rs1;        // GPR rs1
   logic [31:0] gpr_rs2;        // GPR rs1
@@ -221,11 +225,22 @@ module riscv_core
   logic [ 3:0] crd_addr;        // CPR Port 4 address
   logic [31:0] crd_wdata;      // CPR Port 4 write data
 
-  logic        malu_rdm_in_rs; // Source destination registers in rs1/rs2
-
   logic [ 3:0] id_crd;         // Instruction destination register
   logic [ 3:0] id_crd1;        // MP Instruction destination register 1
   logic [ 3:0] id_crd2;        // MP Instruction destination register 2  logic [ 3:0] crd_wen;        // CPR Port 4 write enable
+
+  logic        malu_rdm_in_rs; // Source destination registers in rs1/rs2
+  
+  logic        cop_mem_cen;    // Chip enable
+  logic        cop_mem_wen;    // write enable
+  logic [31:0] cop_mem_addr;   // Read/write address (word aligned)
+  logic [31:0] cop_mem_wdata;  // Memory write data
+//logic [ 3:0] cop_mem_ben;    // Write Byte enable
+  logic        cop_mem_stall;  // Stall
+  logic        cop_mem_error;  // Error
+
+  logic        useincr_addr_ex;
+
 
   // APU
   logic                        apu_en_ex;
@@ -276,6 +291,14 @@ module riscv_core
   PrivLvl_t    current_priv_lvl;
 
   // Data Memory Control:  From ID stage (id-ex pipe) <--> load store unit
+  logic        data_we_ex_id;
+  logic [1:0]  data_type_ex_id;
+  logic        data_sign_ext_ex_id;
+  logic [1:0]  data_reg_offset_ex_id;
+  logic        data_req_ex_id;
+  logic        data_load_event_ex_id;
+  logic        data_misaligned_ex_id;
+
   logic        data_we_ex;
   logic [1:0]  data_type_ex;
   logic        data_sign_ext_ex;
@@ -283,6 +306,9 @@ module riscv_core
   logic        data_req_ex;
   logic        data_load_event_ex;
   logic        data_misaligned_ex;
+  logic [31:0] data_wdata_ex;   
+  logic [31:0] operand_a_ex;
+  logic [31:0] operand_b_ex;
 
   logic [31:0] lsu_rdata;
 
@@ -656,6 +682,8 @@ module riscv_core
     .fpu_op_ex_o                  ( fpu_op_ex            ),
 
     // XCrypto
+    .xcrypto_valid                ( xcrypto_valid        ), // Valid XCrypto instruction
+
     .id_class                     ( id_class             ), // Instruction class
     .id_subclass                  ( id_subclass          ), // Instruction subclass
     .id_pw                        ( id_pw                ), // Pack width
@@ -719,16 +747,16 @@ module riscv_core
     .csr_hwlp_data_i              ( csr_hwlp_data        ),
 
     // LSU
-    .data_req_ex_o                ( data_req_ex          ), // to load store unit
-    .data_we_ex_o                 ( data_we_ex           ), // to load store unit
-    .data_type_ex_o               ( data_type_ex         ), // to load store unit
-    .data_sign_ext_ex_o           ( data_sign_ext_ex     ), // to load store unit
-    .data_reg_offset_ex_o         ( data_reg_offset_ex   ), // to load store unit
+    .data_req_ex_o                ( data_req_ex_id          ), // to load store unit
+    .data_we_ex_o                 ( data_we_ex_id           ), // to load store unit
+    .data_type_ex_o               ( data_type_ex_id         ), // to load store unit
+    .data_sign_ext_ex_o           ( data_sign_ext_ex_id     ), // to load store unit
+    .data_reg_offset_ex_o         ( data_reg_offset_ex_id   ), // to load store unit
     .data_load_event_ex_o         ( data_load_event_ex   ), // to load store unit
 
-    .data_misaligned_ex_o         ( data_misaligned_ex   ), // to load store unit
+    .data_misaligned_ex_o         ( data_misaligned_ex_id   ), // to load store unit
 
-    .prepost_useincr_ex_o         ( useincr_addr_ex      ),
+    .prepost_useincr_ex_o         ( useincr_addr_ex_id      ),
     .data_misaligned_i            ( data_misaligned      ),
 
     // Interrupt Signals
@@ -845,6 +873,8 @@ module riscv_core
     .id_subclass                ( id_subclass                  ), // instruction subclass.
     .id_pw                      ( id_pw                        ), // instruction pack width.
     .id_imm                     ( id_imm                       ), // decoded immediate.
+    .id_wb_h                    ( id_wb_h                      ), // Halfword index (load/store)
+    .id_wb_b                    ( id_wb_b                      ), // Byte index (load/store)
 
     .gpr_rs1                    ( gpr_rs1                      ), // GPR source register 1
     .gpr_rs2                    ( gpr_rs2                      ), // GPR source register 2
@@ -861,6 +891,13 @@ module riscv_core
     .id_crd2                    ( id_crd2                      ), // MP Instruction destination register 2
 
     .malu_rdm_in_rs             ( malu_rdm_in_rs               ), // Source destiation registers in rs1/rs2
+
+    .cop_mem_cen                ( cop_mem_cen                  ), // Chip enable
+    .cop_mem_wen                ( cop_mem_wen                  ), // write enable
+    .cop_mem_addr               ( cop_mem_addr                 ), // Read/write address (word aligned)
+    .cop_mem_wdata              ( cop_mem_wdata                ), // Memory write data
+    .cop_mem_stall              ( cop_mem_stall                ), // Stall
+    .cop_mem_error              ( cop_mem_error                ), // Error
 
     // APU
     .apu_en_i                   ( apu_en_ex                    ),
@@ -895,7 +932,7 @@ module riscv_core
     .apu_master_valid_i         ( apu_master_valid_i           ),
     .apu_master_result_i        ( apu_master_result_i          ),
 
-    .lsu_en_i                   ( data_req_ex                  ),
+    .lsu_en_i                   ( data_req_ex_id                  ),
     .lsu_rdata_i                ( lsu_rdata                    ),
 
     // interface with CSRs
@@ -941,6 +978,18 @@ module riscv_core
   //   |_____\___/_/   \_\____/  |____/ |_| \___/|_| \_\_____|  \___/|_| \_|___| |_|    //
   //                                                                                    //
   ////////////////////////////////////////////////////////////////////////////////////////
+
+
+  assign data_req_ex = xcrypto_valid ? cop_mem_cen : data_req_ex_id;
+  assign data_we_ex = xcrypto_valid ? cop_mem_wen : data_we_ex_id;
+  assign data_type_ex = xcrypto_valid ? 2'b00 : data_type_ex_id;
+  assign data_sign_ext_ex = xcrypto_valid ? 0 : data_sign_ext_ex_id;
+  assign data_reg_offset_ex = xcrypto_valid ? 2'b00 : data_reg_offset_ex_id;
+  assign data_misaligned_ex = xcrypto_valid ? 0 : data_misaligned_ex_id;
+  assign useincr_addr_ex = xcrypto_valid ? 0 : useincr_addr_ex_id;
+  assign data_wdata_ex = xcrypto_valid ? cop_mem_wdata : alu_operand_c_ex;   
+  assign operand_a_ex = xcrypto_valid ? cop_mem_addr : alu_operand_a_ex;
+  assign operand_b_ex = xcrypto_valid ? 0 : alu_operand_b_ex;
 
   riscv_load_store_unit  load_store_unit_i
   (
@@ -988,7 +1037,8 @@ module riscv_core
   );
 
   assign wb_valid = lsu_ready_wb & apu_ready_wb;
-
+  assign cop_mem_stall = ~lsu_ready_ex;
+  assign cop_mem_error = lsu_load_err || lsu_store_err;
 
   //////////////////////////////////////
   //        ____ ____  ____           //

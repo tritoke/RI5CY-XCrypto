@@ -353,7 +353,6 @@ generate if(FAST_COP_CPU_IF == 0) begin
     reg     [2:0] n_cop_fsm;
     
     always @(*) begin
-        
         n_cop_fsm       = FSM_IDLE;
         n_cop_insn_ack  = 1'b0;
         n_cop_insn_rsp  = 1'b0;

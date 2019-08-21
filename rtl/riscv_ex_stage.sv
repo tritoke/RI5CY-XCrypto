@@ -93,6 +93,8 @@ module riscv_ex_stage
   input  logic [15:0] id_subclass,     // Instruction subclass.
   input  logic [ 2:0] id_pw,           // Instruction pack width.
   input  logic [31:0] id_imm,          // Decoded immediate.
+  input  logic        id_wb_h,         // Halfword index (load/store)
+  input  logic        id_wb_b,         // Byte index (load/store)
 
   input  logic [31:0] gpr_rs1,         // GPR rs1
   input  logic [31:0] gpr_rs2,         // GPR rs1
@@ -109,6 +111,15 @@ module riscv_ex_stage
   input  logic [ 3:0] id_crd2,         // MP Instruction destination register 2
 
   output logic        malu_rdm_in_rs,  // Source destination registers in rs1/rs2
+
+  // XCrypto - Memory Interface
+  output logic         cop_mem_cen,       // Chip enable
+  output logic         cop_mem_wen,       // write enable
+  output logic [31:0]  cop_mem_addr,      // Read/write address (word aligned)
+  output logic [31:0]  cop_mem_wdata,     // Memory write data
+//output logic [ 3:0]  cop_mem_ben,       // Write Byte enable
+  input  logic         cop_mem_stall,     // Stall
+  input  logic         cop_mem_error,     // Error
 
   // APU signals
   input  logic                        apu_en_i,
@@ -411,6 +422,7 @@ module riscv_ex_stage
          //  |  __| |  ___/| |  | |  //
          //  | |    | |    | |__| |  //
          //  |_|    |_|     \____/   //
+         //                          //
          //////////////////////////////
 
             fpu_private fpu_i
@@ -483,43 +495,45 @@ module riscv_ex_stage
 
   `include "scarv_cop_common.vh"
 
-  logic          palu_ivalid;      // Valid instruction input
-  logic          palu_idone;       // Instruction complete
-  logic [ 3:0]   palu_cpr_rd_ben;  // Writeback byte enable
-  logic [31:0]   palu_cpr_rd_wdata;// Writeback data
+  logic        fu_done;           // instruction finished executing
 
-//logic         mem_ivalid;        // Valid instruction input
-//logic         mem_idone;         // Instruction complete
-//logic         mem_is_store;      // Instruction is a store / nload
-//logic         mem_addr_error;    // Memory address exception
-//logic         mem_bus_error;     // Memory bus exception
-//logic[ 3:0]   mem_cpr_rd_ben;    // Writeback byte enable
-//logic[31:0]   mem_cpr_rd_wdata;  // Writeback data
+  logic        palu_ivalid;       // Valid instruction input
+  logic        palu_idone;        // Instruction complete
+  logic [ 3:0] palu_cpr_rd_ben;   // Writeback byte enable
+  logic [31:0] palu_cpr_rd_wdata; // Writeback data
 
-  logic         malu_ivalid;       // Valid instruction input
-  logic         malu_idone;        // Instruction complete
-  logic [ 3:0]  malu_cpr_rd_ben;   // Writeback byte enable
-  logic [31:0]  malu_cpr_rd_wdata; // Writeback data
+  logic        mem_ivalid;        // Valid instruction input
+  logic        mem_idone;         // Instruction complete
+  logic        mem_is_store;      // Instruction is a store / nload
+  logic        mem_addr_error;    // Memory address exception
+  logic        mem_bus_error;     // Memory bus exception
+  logic [ 3:0] mem_cpr_rd_ben;    // Writeback byte enable
+  logic [31:0] mem_cpr_rd_wdata;  // Writeback data
 
-  logic         rng_ivalid;        // Valid instruction input
-  logic         rng_idone;         // Instruction complete
-  logic [ 3:0]  rng_cpr_rd_ben;    // Writeback byte enable
-  logic [31:0]  rng_cpr_rd_wdata;  // Writeback data
+  logic        malu_ivalid;       // Valid instruction input
+  logic        malu_idone;        // Instruction complete
+  logic [ 3:0] malu_cpr_rd_ben;   // Writeback byte enable
+  logic [31:0] malu_cpr_rd_wdata; // Writeback data
 
-  logic         aes_ivalid;        // Valid instruction input
-  logic         aes_idone;         // Instruction complete
-  logic [ 3:0]  aes_cpr_rd_ben;    // Writeback byte enable
-  logic [31:0]  aes_cpr_rd_wdata;  // Writeback data
+  logic        rng_ivalid;        // Valid instruction input
+  logic        rng_idone;         // Instruction complete
+  logic [ 3:0] rng_cpr_rd_ben;    // Writeback byte enable
+  logic [31:0] rng_cpr_rd_wdata;  // Writeback data
 
-  logic         sha3_ivalid;        // Valid instruction input
-  logic         sha3_idone;         // Instruction complete
-  logic [ 3:0]  sha3_cpr_rd_ben;    // Writeback byte enable
-  logic [31:0]  sha3_cpr_rd_wdata;  // Writeback data
+  logic        aes_ivalid;        // Valid instruction input
+  logic        aes_idone;         // Instruction complete
+  logic [ 3:0] aes_cpr_rd_ben;    // Writeback byte enable
+  logic [31:0] aes_cpr_rd_wdata;  // Writeback data
 
-  logic         perm_ivalid;       // Valid instruction input
-  logic         perm_idone;        // Instruction complete
-  logic [ 3:0]  perm_cpr_rd_ben;   // Writeback byte enable
-  logic [31:0]  perm_cpr_rd_wdata; // Writeback data
+  logic        sha3_ivalid;        // Valid instruction input
+  logic        sha3_idone;         // Instruction complete
+  logic [ 3:0] sha3_cpr_rd_ben;    // Writeback byte enable
+  logic [31:0] sha3_cpr_rd_wdata;  // Writeback data
+
+  logic        perm_ivalid;       // Valid instruction input
+  logic        perm_idone;        // Instruction complete
+  logic [ 3:0] perm_cpr_rd_ben;   // Writeback byte enable
+  logic [31:0] perm_cpr_rd_wdata; // Writeback data
 
   assign palu_ivalid = 
     ( id_class[SCARV_COP_ICLASS_PACKED_ARITH] ||
@@ -532,7 +546,7 @@ module riscv_ex_stage
 
   assign malu_ivalid  = id_class[SCARV_COP_ICLASS_MP];
 
-//assign mem_ivalid   = id_class[SCARV_COP_ICLASS_LOADSTORE];
+  assign mem_ivalid   = id_class[SCARV_COP_ICLASS_LOADSTORE];
 
   assign rng_ivalid   = id_class[SCARV_COP_ICLASS_RANDOM];
 
@@ -540,10 +554,10 @@ module riscv_ex_stage
 
   assign crd_wen   = palu_cpr_rd_ben |
                      malu_cpr_rd_ben |
+                     mem_cpr_rd_ben  |
                      rng_cpr_rd_ben  |
                      aes_cpr_rd_ben  |
                      perm_cpr_rd_ben ;
-                     //mem_cpr_rd_ben  |
 
   assign crd_addr  = !malu_ivalid ? id_crd :
                      !malu_idone  ? id_crd1:
@@ -551,10 +565,10 @@ module riscv_ex_stage
 
   assign crd_wdata = palu_cpr_rd_wdata |
                      malu_cpr_rd_wdata |
+                     mem_cpr_rd_wdata  |
                      rng_cpr_rd_wdata  |
                      aes_cpr_rd_wdata  |
                      perm_cpr_rd_wdata ;
-                     //mem_cpr_rd_wdata  |
 
   //
   // instance: scarv_cop_palu
@@ -624,34 +638,39 @@ module riscv_ex_stage
   //
   //  Load/store memory access module.
   //
-//scarv_cop_mem i_scarv_cop_mem (
-//  .g_clk           (clk           ), // Global clock
-//  .g_resetn        (rst_n        ), // Synchronous active low reset.
-//  .mem_ivalid      (mem_ivalid      ), // Valid instruction input
-//  .mem_idone       (mem_idone       ), // Instruction complete
-//  .mem_is_store    (mem_is_store    ), // Is the instruction a store?
-//  .mem_addr_error  (mem_addr_error  ), // Memory address exception
-//  .mem_bus_error   (mem_bus_error   ), // Memory bus exception
-//  .gpr_rs1         (gpr_rs1           ), // GPR Source register 1
-//  .gpr_rs2         (gpr_rs2           ), // GPR Source register 2
-//  .cpr_rs1         (crs1_rdata      ), // XCR Source register 2
-//  .cpr_rs2         (crs2_rdata      ), // XCR Source register 3
-//  .cpr_rs3         (crs3_rdata      ), // XCR Source register 3
-//  .id_wb_h         (id_wb_h         ), // Halfword index (load/store)
-//  .id_wb_b         (id_wb_b         ), // Byte index (load/store)
-//  .id_imm          (id_imm          ), // Source immedate
-//  .id_subclass     (id_subclass     ), // Instruction subclass
-//  .mem_cpr_rd_ben  (mem_cpr_rd_ben  ), // Writeback byte enable
-//  .mem_cpr_rd_wdata(mem_cpr_rd_wdata), // Writeback data
-//  .cop_mem_cen     (cop_mem_cen     ), // Chip enable
-//  .cop_mem_wen     (cop_mem_wen     ), // write enable
-//  .cop_mem_addr    (cop_mem_addr    ), // Read/write address (word aligned)
-//  .cop_mem_wdata   (cop_mem_wdata   ), // Memory write data
-//  .cop_mem_rdata   (cop_mem_rdata   ), // Memory read data
-//  .cop_mem_ben     (cop_mem_ben     ), // Write Byte enable
-//  .cop_mem_stall   (cop_mem_stall   ), // Stall
-//  .cop_mem_error   (cop_mem_error   )  // Error
-//);
+  scarv_cop_mem i_scarv_cop_mem (
+    .g_clk           (clk           ), // Global clock
+    .g_resetn        (rst_n        ), // Synchronous active low reset.
+    .mem_ivalid      (mem_ivalid      ), // Valid instruction input
+    .mem_idone       (mem_idone       ), // Instruction complete
+    .mem_is_store    (mem_is_store    ), // Is the instruction a store?
+    .mem_addr_error  (mem_addr_error  ), // Memory address exception
+    .mem_bus_error   (mem_bus_error   ), // Memory bus exception
+    .gpr_rs1         (gpr_rs1           ), // GPR Source register 1
+    .gpr_rs2         (gpr_rs2           ), // GPR Source register 2
+    .cpr_rs1         (crs1_rdata      ), // XCR Source register 2
+    .cpr_rs2         (crs2_rdata      ), // XCR Source register 3
+    .cpr_rs3         (crs3_rdata      ), // XCR Source register 3
+
+    .id_wb_h         (id_wb_h         ), // Halfword index (load/store)
+    .id_wb_b         (id_wb_b         ), // Byte index (load/store)
+
+    .id_imm          (id_imm          ), // Source immedate
+    .id_subclass     (id_subclass     ), // Instruction subclass
+    .mem_cpr_rd_ben  (mem_cpr_rd_ben  ), // Writeback byte enable
+    .mem_cpr_rd_wdata(mem_cpr_rd_wdata), // Writeback data
+
+    // EXTERNAL MEMORY COMMANDS
+
+    .cop_mem_cen     (cop_mem_cen     ), // Chip enable
+    .cop_mem_wen     (cop_mem_wen     ), // write enable
+    .cop_mem_addr    (cop_mem_addr    ), // Read/write address (word aligned)
+    .cop_mem_wdata   (cop_mem_wdata   ), // Memory write data
+    .cop_mem_rdata   (lsu_rdata_i     ), // Memory read data
+   //.cop_mem_ben     (cop_mem_ben     ), // Write Byte enable
+    .cop_mem_stall   (cop_mem_stall   ), // Stall
+    .cop_mem_error   (cop_mem_error   )  // Error
+  );
 
 
   //
@@ -701,16 +720,21 @@ module riscv_ex_stage
     .g_resetn        (rst_n        ), // Synchronous active low reset.
     .rng_ivalid      (rng_ivalid      ), // Valid instruction input
     .rng_idone       (rng_idone       ), // Instruction complete
-  //`ifdef FORMAL
-  //.cop_random      (cop_random      ), // Latest random sample value
-  //.cop_rand_sample (cop_rand_sample ), // random sample value valid
-  //`endif
+    `ifdef FORMAL
+    .cop_random      (cop_random      ), // Latest random sample value
+    .cop_rand_sample (cop_rand_sample ), // random sample value valid
+    `endif
     .rng_rs1         (crs1_rdata      ), // Source register 1
     .id_imm          (id_imm          ), // Source immedate
     .id_subclass     (id_subclass     ), // Instruction subclass
     .rng_cpr_rd_ben  (rng_cpr_rd_ben  ), // Writeback byte enable
     .rng_cpr_rd_wdata(rng_cpr_rd_wdata) // Writeback data
   );
+
+  assign  fu_done = mem_idone || palu_idone ||
+                   malu_idone || rng_idone  ||
+                   aes_idone  || sha3_idone ||
+                   ~cprs_init || perm_idone;
 
 
   ///////////////////////////////////////
@@ -743,8 +767,8 @@ module riscv_ex_stage
   // to finish branches without going to the WB stage, ex_valid does not
   // depend on ex_ready.
   assign ex_ready_o = (~apu_stall & alu_ready & mult_ready & lsu_ready_ex_i
-                       & wb_ready_i & ~wb_contention & ~cprs_init) | (branch_in_ex_i);
+                       & wb_ready_i & ~wb_contention & fu_done) | (branch_in_ex_i);
   assign ex_valid_o = (apu_valid | alu_en_i | mult_en_i | csr_access_i | lsu_en_i)
-                       & (alu_ready & mult_ready & lsu_ready_ex_i & wb_ready_i & ~cprs_init);
+                       & (alu_ready & mult_ready & lsu_ready_ex_i & wb_ready_i & fu_done);
 
 endmodule
