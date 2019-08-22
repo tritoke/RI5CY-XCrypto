@@ -79,6 +79,7 @@ module riscv_core
   input  logic        data_rvalid_i,
   output logic        data_we_o,
   output logic [3:0]  data_be_o,
+  output logic [3:0]  data_be_lsu_o,
   output logic [31:0] data_addr_o,
   output logic [31:0] data_wdata_o,
   input  logic [31:0] data_rdata_i,
@@ -235,7 +236,7 @@ module riscv_core
   logic        cop_mem_wen;    // write enable
   logic [31:0] cop_mem_addr;   // Read/write address (word aligned)
   logic [31:0] cop_mem_wdata;  // Memory write data
-//logic [ 3:0] cop_mem_ben;    // Write Byte enable
+  logic [ 3:0] cop_mem_ben;    // Write Byte enable
   logic        cop_mem_stall;  // Stall
   logic        cop_mem_error;  // Error
 
@@ -867,7 +868,7 @@ module riscv_core
     .fpu_fflags_we_o            ( fflags_we                    ),
 
     // XCrypto
-    .cprs_init                  ( cprs_init                 ),
+    .cprs_init                  ( cprs_init                    ),
 
     .id_class                   ( id_class                     ), // instruction class.
     .id_subclass                ( id_subclass                  ), // instruction subclass.
@@ -896,6 +897,7 @@ module riscv_core
     .cop_mem_wen                ( cop_mem_wen                  ), // write enable
     .cop_mem_addr               ( cop_mem_addr                 ), // Read/write address (word aligned)
     .cop_mem_wdata              ( cop_mem_wdata                ), // Memory write data
+    .cop_mem_ben                ( cop_mem_ben                  ), // Write Byte enable
     .cop_mem_stall              ( cop_mem_stall                ), // Stall
     .cop_mem_error              ( cop_mem_error                ), // Error
 
@@ -1004,21 +1006,21 @@ module riscv_core
 
     .data_addr_o           ( data_addr_o        ),
     .data_we_o             ( data_we_o          ),
-    .data_be_o             ( data_be_o          ),
+    .data_be_o             ( data_be_lsu_o      ),
     .data_wdata_o          ( data_wdata_o       ),
     .data_rdata_i          ( data_rdata_i       ),
 
     // signal from ex stage
     .data_we_ex_i          ( data_we_ex         ),
     .data_type_ex_i        ( data_type_ex       ),
-    .data_wdata_ex_i       ( alu_operand_c_ex   ),
+    .data_wdata_ex_i       ( data_wdata_ex      ),
     .data_reg_offset_ex_i  ( data_reg_offset_ex ),
     .data_sign_ext_ex_i    ( data_sign_ext_ex   ),  // sign extension
 
     .data_rdata_ex_o       ( lsu_rdata          ),
     .data_req_ex_i         ( data_req_ex        ),
-    .operand_a_ex_i        ( alu_operand_a_ex   ),
-    .operand_b_ex_i        ( alu_operand_b_ex   ),
+    .operand_a_ex_i        ( operand_a_ex   ),
+    .operand_b_ex_i        ( operand_b_ex   ),
     .addr_useincr_ex_i     ( useincr_addr_ex    ),
 
     .data_misaligned_ex_i  ( data_misaligned_ex ), // from ID/EX pipeline
@@ -1039,6 +1041,7 @@ module riscv_core
   assign wb_valid = lsu_ready_wb & apu_ready_wb;
   assign cop_mem_stall = ~lsu_ready_ex;
   assign cop_mem_error = lsu_load_err || lsu_store_err;
+  assign data_be_o = xcrypto_valid ? cop_mem_ben : data_be_lsu_o;
 
   //////////////////////////////////////
   //        ____ ____  ____           //

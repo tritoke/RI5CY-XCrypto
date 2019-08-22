@@ -117,7 +117,7 @@ module riscv_ex_stage
   output logic         cop_mem_wen,       // write enable
   output logic [31:0]  cop_mem_addr,      // Read/write address (word aligned)
   output logic [31:0]  cop_mem_wdata,     // Memory write data
-//output logic [ 3:0]  cop_mem_ben,       // Write Byte enable
+  output logic [ 3:0]  cop_mem_ben,       // Write Byte enable
   input  logic         cop_mem_stall,     // Stall
   input  logic         cop_mem_error,     // Error
 
@@ -667,7 +667,7 @@ module riscv_ex_stage
     .cop_mem_addr    (cop_mem_addr    ), // Read/write address (word aligned)
     .cop_mem_wdata   (cop_mem_wdata   ), // Memory write data
     .cop_mem_rdata   (lsu_rdata_i     ), // Memory read data
-   //.cop_mem_ben     (cop_mem_ben     ), // Write Byte enable
+    .cop_mem_ben     (cop_mem_ben     ), // Write Byte enable
     .cop_mem_stall   (cop_mem_stall   ), // Stall
     .cop_mem_error   (cop_mem_error   )  // Error
   );
