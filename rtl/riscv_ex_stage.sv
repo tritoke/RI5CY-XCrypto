@@ -731,10 +731,10 @@ module riscv_ex_stage
     .rng_cpr_rd_wdata(rng_cpr_rd_wdata) // Writeback data
   );
 
-  assign  fu_done = mem_idone || palu_idone ||
-                   malu_idone || rng_idone  ||
-                   aes_idone  || sha3_idone ||
-                   ~cprs_init || perm_idone;
+  assign  fu_done = mem_idone  || palu_idone ||
+                    malu_idone || rng_idone  ||
+                    aes_idone  || sha3_idone ||
+                    perm_idone;
 
 
   ///////////////////////////////////////
@@ -767,8 +767,10 @@ module riscv_ex_stage
   // to finish branches without going to the WB stage, ex_valid does not
   // depend on ex_ready.
   assign ex_ready_o = (~apu_stall & alu_ready & mult_ready & lsu_ready_ex_i
-                       & wb_ready_i & ~wb_contention & fu_done) | (branch_in_ex_i);
+                       & wb_ready_i & ~wb_contention & ~cprs_init
+                       & (~mem_ivalid | mem_idone)) | (branch_in_ex_i);
   assign ex_valid_o = (apu_valid | alu_en_i | mult_en_i | csr_access_i | lsu_en_i)
-                       & (alu_ready & mult_ready & lsu_ready_ex_i & wb_ready_i & fu_done);
+                       & (alu_ready & mult_ready & lsu_ready_ex_i &
+                       & (~mem_ivalid | mem_idone) & wb_ready_i & ~cprs_init);
 
 endmodule

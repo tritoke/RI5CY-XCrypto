@@ -82,18 +82,18 @@ end endgenerate
 reg  [4:0] init_fsm;
 wire [4:0] n_init_fsm = init_fsm + 1;
 
-assign cprs_init_done = init_fsm == 16;
+assign cprs_init_done = init_fsm == 15;
 
 always @(posedge g_clk) begin
     if(cprs_init) begin
         $display("Initialising FSM: init_fsm=%d\n", init_fsm);
-        init_fsm <= init_fsm == 16 ? 16 : n_init_fsm;
+        init_fsm <= init_fsm == 15 ? 15 : n_init_fsm;
     end else begin
         init_fsm <= 0;
     end
 end
 
-wire [ 3:0] wen     = cprs_init ? 4'hF      : crd_wen;
+wire [ 3:0] wen     = cprs_init ? 4'b1111   : crd_wen;
 wire [31:0] wdata   = cprs_init ? 32'b0     : crd_wdata;
 wire [ 3:0] addr    = cprs_init ? init_fsm  : crd_addr;
 

@@ -1191,7 +1191,7 @@ module riscv_id_stage
     `ifdef FORMAL
     `VTX_REGISTER_PORTS_RAISE(cprs_snoop)
     `endif
-    .cprs_init                       ( cprs_init                 ), // Initialise back to zero.
+    .cprs_init                       ( id_cprs_init                 ), // Initialise back to zero.
     .cprs_init_done                  ( cprs_init_done            ), // Initialise back to zero.
     .crs1_ren                        ( crs1_ren                  ), // Port 1 read enable
     .crs1_addr                       ( crs1_addr                 ), // Port 1 address

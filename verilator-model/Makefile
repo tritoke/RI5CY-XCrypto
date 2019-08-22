@@ -140,16 +140,18 @@ $(VMK): $(VSRC)
 	          --Mdir $(VDIR) --trace -DPULP_FPGA_EMUL -cc \
 	          +incdir+$(VINC) $(VSRC) $(SRC) --exe
 
-.PHONY: unit
-unit:
-	$(RM) $(PROG) $(OBJ) $(BIN)
-	$(LN) -s $(TEST) $(PROG)
+.PHONY: loadunit
+loadunit:
+	$(LN) -sf $(TEST) $(PROG)
 	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
 	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
 
-.PHONY: run
-run: $(EXE)
-	./$(EXE)
+.PHONY: unit
+unit:
+	$(RM) $(OBJ) $(BIN)
+	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
+	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
+
 
 .PHONY: clean
 clean:

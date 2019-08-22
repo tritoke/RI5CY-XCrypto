@@ -867,7 +867,7 @@ module riscv_core
     .fpu_fflags_we_o            ( fflags_we                    ),
 
     // XCrypto
-    .cprs_init                  ( cprs_init                    ),
+    .cprs_init                  ( cprs_init                 ),
 
     .id_class                   ( id_class                     ), // instruction class.
     .id_subclass                ( id_subclass                  ), // instruction subclass.
