@@ -144,15 +144,16 @@ generate for(s = 0; s < 16; s = s+ 1) begin
 end endgenerate
 
 // AND/ORing the various bitwise results together.
+
 wire [31:0] result_bitwise = 
-    {32{bw_ld_liu}} & {palu_rs3[31:16], id_imm[15:0]    } |
-    {32{bw_ld_hiu}} & {id_imm[15:0]   , palu_rs3[15: 0] } |
-    {32{bw_bmv }} & {ins_result                       } |
-    {32{bw_bop }} & {bop_result                       } |
-    {32{bw_bop }} & {bop_result                       } |
-    {32{bw_ext }} & {ext_result                       } |
-    {32{bw_ins }} & {ins_result                       } |
-    {32{bw_lut}} & {lut_result                     } ;
+     {32{bw_ld_liu}} & {palu_rs3[31:16], id_imm[15:0]    } |
+     {32{bw_ld_hiu}} & {id_imm[15:0]   , palu_rs3[15:0]  } |
+     {32{bw_bmv   }} & {ins_result                       } |
+     {32{bw_bop   }} & {bop_result                       } |
+     {32{bw_bop   }} & {bop_result                       } |
+     {32{bw_ext   }} & {ext_result                       } |
+     {32{bw_ins   }} & {ins_result                       } |
+     {32{bw_lut   }} & {lut_result                       } ;
 
 // ----------------------------------------------------------------------
 

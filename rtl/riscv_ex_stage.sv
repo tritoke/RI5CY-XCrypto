@@ -525,10 +525,10 @@ module riscv_ex_stage
   logic [ 3:0] aes_cpr_rd_ben;    // Writeback byte enable
   logic [31:0] aes_cpr_rd_wdata;  // Writeback data
 
-  logic        sha3_ivalid;        // Valid instruction input
-  logic        sha3_idone;         // Instruction complete
-  logic [ 3:0] sha3_cpr_rd_ben;    // Writeback byte enable
-  logic [31:0] sha3_cpr_rd_wdata;  // Writeback data
+  logic        sha3_ivalid;       // Valid instruction input
+  logic        sha3_idone;        // Instruction complete
+  logic [ 3:0] sha3_cpr_rd_ben;   // Writeback byte enable
+  logic [31:0] sha3_cpr_rd_wdata; // Writeback data
 
   logic        perm_ivalid;       // Valid instruction input
   logic        perm_idone;        // Instruction complete
@@ -583,7 +583,7 @@ module riscv_ex_stage
     .g_resetn           ( rst_n             ), // Synchronous active low reset.
     .palu_ivalid        ( palu_ivalid       ), // Valid instruction input
     .palu_idone         ( palu_idone        ), // Instruction complete
-    .gpr_rs1            ( gpr_rs1             ), // GPR rs1
+    .gpr_rs1            ( gpr_rs1           ), // GPR rs1
     .palu_rs1           ( crs1_rdata        ), // Source register 1
     .palu_rs2           ( crs2_rdata        ), // Source register 2
     .palu_rs3           ( crs3_rdata        ), // Source register 3
@@ -603,15 +603,15 @@ module riscv_ex_stage
   //
   //
   scarv_cop_aes i_scarv_cop_aes(
-    .g_clk            (clk           ), // Global clock
-    .g_resetn         (rst_n        ), // Synchronous active low reset.
-    .aes_ivalid       (aes_ivalid      ), // Valid instruction input
-    .aes_idone        (aes_idone       ), // Instruction complete
-    .aes_rs1          (crs1_rdata      ), // Source register 1
-    .aes_rs2          (crs2_rdata      ), // Source register 2
-    .id_subclass      (id_subclass     ), // Instruction subclass
-    .aes_cpr_rd_ben   (aes_cpr_rd_ben  ), // Writeback byte enable
-    .aes_cpr_rd_wdata (aes_cpr_rd_wdata)  // Writeback data
+    .g_clk              ( clk               ), // Global clock
+    .g_resetn           ( rst_n             ), // Synchronous active low reset.
+    .aes_ivalid         ( aes_ivalid        ), // Valid instruction input
+    .aes_idone          ( aes_idone         ), // Instruction complete
+    .aes_rs1            ( crs1_rdata        ), // Source register 1
+    .aes_rs2            ( crs2_rdata        ), // Source register 2
+    .id_subclass        ( id_subclass       ), // Instruction subclass
+    .aes_cpr_rd_ben     ( aes_cpr_rd_ben    ), // Writeback byte enable
+    .aes_cpr_rd_wdata   ( aes_cpr_rd_wdata  )  // Writeback data
   );
 
   //
@@ -621,16 +621,16 @@ module riscv_ex_stage
   //
   //
   scarv_cop_sha3 i_scarv_cop_sha3 (
-    .g_clk            (clk           ), // Global clock
-    .g_resetn         (rst_n        ), // Synchronous active low reset.
-    .sha3_ivalid      (sha3_ivalid     ), // Valid instruction input
-    .sha3_idone       (sha3_idone      ), // Instruction complete
-    .sha3_rs1         (gpr_rs1           ), // Source register 1
-    .sha3_rs2         (gpr_rs2           ), // Source register 2
-    .id_subclass      (id_subclass     ), // Instruction subclass
-    .id_imm           (id_imm           ), // Source immedate
-    .sha3_cpr_rd_ben  (sha3_cpr_rd_ben  ), // Writeback byte enable
-    .sha3_cpr_rd_wdata(sha3_cpr_rd_wdata)  // Writeback data
+    .g_clk              ( clk               ), // Global clock
+    .g_resetn           ( rst_n             ), // Synchronous active low reset.
+    .sha3_ivalid        ( sha3_ivalid       ), // Valid instruction input
+    .sha3_idone         ( sha3_idone        ), // Instruction complete
+    .sha3_rs1           ( gpr_rs1           ), // Source register 1
+    .sha3_rs2           ( gpr_rs2           ), // Source register 2
+    .id_subclass        ( id_subclass       ), // Instruction subclass
+    .id_imm             ( id_imm            ), // Source immedate
+    .sha3_cpr_rd_ben    ( sha3_cpr_rd_ben   ), // Writeback byte enable
+    .sha3_cpr_rd_wdata  ( sha3_cpr_rd_wdata )  // Writeback data
   );
 
   //
@@ -639,37 +639,37 @@ module riscv_ex_stage
   //  Load/store memory access module.
   //
   scarv_cop_mem i_scarv_cop_mem (
-    .g_clk           (clk           ), // Global clock
-    .g_resetn        (rst_n        ), // Synchronous active low reset.
-    .mem_ivalid      (mem_ivalid      ), // Valid instruction input
-    .mem_idone       (mem_idone       ), // Instruction complete
-    .mem_is_store    (mem_is_store    ), // Is the instruction a store?
-    .mem_addr_error  (mem_addr_error  ), // Memory address exception
-    .mem_bus_error   (mem_bus_error   ), // Memory bus exception
-    .gpr_rs1         (gpr_rs1           ), // GPR Source register 1
-    .gpr_rs2         (gpr_rs2           ), // GPR Source register 2
-    .cpr_rs1         (crs1_rdata      ), // XCR Source register 2
-    .cpr_rs2         (crs2_rdata      ), // XCR Source register 3
-    .cpr_rs3         (crs3_rdata      ), // XCR Source register 3
+    .g_clk            ( clk               ), // Global clock
+    .g_resetn         ( rst_n             ), // Synchronous active low reset.
+    .mem_ivalid       ( mem_ivalid        ), // Valid instruction input
+    .mem_idone        ( mem_idone         ), // Instruction complete
+    .mem_is_store     ( mem_is_store      ), // Is the instruction a store?
+    .mem_addr_error   ( mem_addr_error    ), // Memory address exception
+    .mem_bus_error    ( mem_bus_error     ), // Memory bus exception
+    .gpr_rs1          ( gpr_rs1           ), // GPR Source register 1
+    .gpr_rs2          ( gpr_rs2           ), // GPR Source register 2
+    .cpr_rs1          ( crs1_rdata        ), // XCR Source register 2
+    .cpr_rs2          ( crs2_rdata        ), // XCR Source register 3
+    .cpr_rs3          ( crs3_rdata        ), // XCR Source register 3
 
-    .id_wb_h         (id_wb_h         ), // Halfword index (load/store)
-    .id_wb_b         (id_wb_b         ), // Byte index (load/store)
+    .id_wb_h          ( id_wb_h           ), // Halfword index (load/store)
+    .id_wb_b          ( id_wb_b           ), // Byte index (load/store)
 
-    .id_imm          (id_imm          ), // Source immedate
-    .id_subclass     (id_subclass     ), // Instruction subclass
-    .mem_cpr_rd_ben  (mem_cpr_rd_ben  ), // Writeback byte enable
-    .mem_cpr_rd_wdata(mem_cpr_rd_wdata), // Writeback data
+    .id_imm           ( id_imm            ), // Source immedate
+    .id_subclass      ( id_subclass       ), // Instruction subclass
+    .mem_cpr_rd_ben   ( mem_cpr_rd_ben    ), // Writeback byte enable
+    .mem_cpr_rd_wdata ( mem_cpr_rd_wdata  ), // Writeback data
 
     // EXTERNAL MEMORY COMMANDS
 
-    .cop_mem_cen     (cop_mem_cen     ), // Chip enable
-    .cop_mem_wen     (cop_mem_wen     ), // write enable
-    .cop_mem_addr    (cop_mem_addr    ), // Read/write address (word aligned)
-    .cop_mem_wdata   (cop_mem_wdata   ), // Memory write data
-    .cop_mem_rdata   (lsu_rdata_i     ), // Memory read data
-    .cop_mem_ben     (cop_mem_ben     ), // Write Byte enable
-    .cop_mem_stall   (cop_mem_stall   ), // Stall
-    .cop_mem_error   (cop_mem_error   )  // Error
+    .cop_mem_cen      ( cop_mem_cen       ), // Chip enable
+    .cop_mem_wen      ( cop_mem_wen       ), // write enable
+    .cop_mem_addr     ( cop_mem_addr      ), // Read/write address (word aligned)
+    .cop_mem_wdata    ( cop_mem_wdata     ), // Memory write data
+    .cop_mem_rdata    ( lsu_rdata_i       ), // Memory read data
+    .cop_mem_ben      ( cop_mem_ben       ), // Write Byte enable
+    .cop_mem_stall    ( cop_mem_stall     ), // Stall
+    .cop_mem_error    ( cop_mem_error     )  // Error
   );
 
 
@@ -679,19 +679,19 @@ module riscv_ex_stage
   //  Multi-precision arithmetic and shift module.
   //
   scarv_cop_malu i_scarv_cop_malu (
-    .g_clk            (clk           ), // Global clock
-    .g_resetn         (rst_n        ), // Synchronous active low reset.
-    .malu_ivalid      (malu_ivalid      ), // Valid instruction input
-    .malu_idone       (malu_idone       ), // Instruction complete
-    .malu_rdm_in_rs   (malu_rdm_in_rs   ),
-    .gpr_rs1          (gpr_rs1            ),
-    .malu_rs1         (crs1_rdata       ), // Source register 1
-    .malu_rs2         (crs2_rdata       ), // Source register 2
-    .malu_rs3         (crs3_rdata       ), // Source register 3
-    .id_imm           (id_imm           ), // Source immedate
-    .id_subclass      (id_subclass      ), // Instruction subclass
-    .malu_cpr_rd_ben  (malu_cpr_rd_ben  ), // Writeback byte enable
-    .malu_cpr_rd_wdata(malu_cpr_rd_wdata)  // Writeback data
+    .g_clk              ( clk               ), // Global clock
+    .g_resetn           ( rst_n             ), // Synchronous active low reset.
+    .malu_ivalid        ( malu_ivalid       ), // Valid instruction input
+    .malu_idone         ( malu_idone        ), // Instruction complete
+    .malu_rdm_in_rs     ( malu_rdm_in_rs    ), // something something multiple precision register thingy
+    .gpr_rs1            ( gpr_rs1           ), // GPR source register 1
+    .malu_rs1           ( crs1_rdata        ), // Source register 1
+    .malu_rs2           ( crs2_rdata        ), // Source register 2
+    .malu_rs3           ( crs3_rdata        ), // Source register 3
+    .id_imm             ( id_imm            ), // Source immedate
+    .id_subclass        ( id_subclass       ), // Instruction subclass
+    .malu_cpr_rd_ben    ( malu_cpr_rd_ben   ), // Writeback byte enable
+    .malu_cpr_rd_wdata  ( malu_cpr_rd_wdata )  // Writeback data
   );
 
 
@@ -701,14 +701,14 @@ module riscv_ex_stage
   //  Bit level permutation instructions.
   //
   scarv_cop_permute i_scarv_cop_permute (
-  .perm_ivalid      (perm_ivalid      ), // Valid instruction input
-  .perm_idone       (perm_idone       ), // Instruction complete
-  .perm_rs1         (crs1_rdata       ), // Source register 1
-  .perm_rs3         (crs3_rdata       ), // Source register 3 / rd
-  .id_imm           (id_imm           ), // Source immedate
-  .id_subclass      (id_subclass      ), // Instruction subclass
-  .perm_cpr_rd_ben  (perm_cpr_rd_ben  ), // Writeback byte enable
-  .perm_cpr_rd_wdata(perm_cpr_rd_wdata)  // Writeback data
+    .perm_ivalid        ( perm_ivalid       ), // Valid instruction input
+    .perm_idone         ( perm_idone        ), // Instruction complete
+    .perm_rs1           ( crs1_rdata        ), // Source register 1
+    .perm_rs3           ( crs3_rdata        ), // Source register 3 / rd
+    .id_imm             ( id_imm            ), // Source immedate
+    .id_subclass        ( id_subclass       ), // Instruction subclass
+    .perm_cpr_rd_ben    ( perm_cpr_rd_ben   ), // Writeback byte enable
+    .perm_cpr_rd_wdata  ( perm_cpr_rd_wdata )  // Writeback data
   );
 
 
@@ -716,24 +716,23 @@ module riscv_ex_stage
   // Random number generator
   //
   scarv_cop_rng i_scarv_cop_rng(
-    .g_clk           (clk           ), // Global clock
-    .g_resetn        (rst_n        ), // Synchronous active low reset.
-    .rng_ivalid      (rng_ivalid      ), // Valid instruction input
-    .rng_idone       (rng_idone       ), // Instruction complete
-    `ifdef FORMAL
-    .cop_random      (cop_random      ), // Latest random sample value
-    .cop_rand_sample (cop_rand_sample ), // random sample value valid
-    `endif
-    .rng_rs1         (crs1_rdata      ), // Source register 1
-    .id_imm          (id_imm          ), // Source immedate
-    .id_subclass     (id_subclass     ), // Instruction subclass
-    .rng_cpr_rd_ben  (rng_cpr_rd_ben  ), // Writeback byte enable
-    .rng_cpr_rd_wdata(rng_cpr_rd_wdata) // Writeback data
+    .g_clk            ( clk               ), // Global clock
+    .g_resetn         ( rst_n             ), // Synchronous active low reset.
+    .rng_ivalid       ( rng_ivalid        ), // Valid instruction input
+    .rng_idone        ( rng_idone         ), // Instruction complete
+  //`ifdef FORMAL
+  //.cop_random       ( cop_random        ), // Latest random sample value
+  //.cop_rand_sample  ( cop_rand_sample   ), // random sample value valid
+  //`endif
+    .rng_rs1          ( crs1_rdata        ), // Source register 1
+    .id_imm           ( id_imm            ), // Source immedate
+    .id_subclass      ( id_subclass       ), // Instruction subclass
+    .rng_cpr_rd_ben   ( rng_cpr_rd_ben    ), // Writeback byte enable
+    .rng_cpr_rd_wdata ( rng_cpr_rd_wdata  ) // Writeback data
   );
 
-  assign  fu_done = mem_idone  || palu_idone ||
-                    malu_idone || rng_idone  ||
-                    aes_idone  || sha3_idone ||
+  assign  fu_done = mem_idone  || palu_idone || malu_idone ||
+                    rng_idone  || aes_idone  || sha3_idone ||
                     perm_idone;
 
 

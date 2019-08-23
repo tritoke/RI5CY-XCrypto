@@ -321,14 +321,13 @@ module riscv_id_stage
   logic        id_wb_b;             // Byte index (load/store)
 
   logic        crs1_ren = 1'b1;     // Port 1 read enable
-  logic [ 3:0] crs1_addr = malu_rdm_in_rs ? id_crd1 : id_crs1; // Port 1 address
+  logic [ 3:0] crs1_addr;           // Port 1 address
 
   logic        crs2_ren = 1'b1;     // Port 2 read enable
-  logic [ 3:0] crs2_addr = malu_rdm_in_rs ? id_crd2 : id_crs2; // Port 2 address
-
+  logic [ 3:0] crs2_addr;           // Port 2 address
+                        
   logic        crs3_ren = 1'b1;     // Port 3 read enable
-  logic [ 3:0] crs3_addr = malu_rdm_in_rs ? id_crs1 : id_crs3; // Port 4 address
-
+  logic [ 3:0] crs3_addr;           // Port 3 address
 
   // Immediate decoding and sign extension
   logic [31:0] imm_i_type;
@@ -1183,6 +1182,10 @@ module riscv_id_stage
   assign xcrypto_valid = ~xcrypto_illegal;
   assign cprs_init = id_cprs_init & (~cprs_init_done);
 
+  assign crs1_addr = malu_rdm_in_rs ? id_crd1 : id_crs1; 
+  assign crs2_addr = malu_rdm_in_rs ? id_crd2 : id_crs2; 
+  assign crs3_addr = malu_rdm_in_rs ? id_crs1 : id_crs3; 
+
   scarv_cop_cprs
   xcrypto_registers
   (
@@ -1191,7 +1194,7 @@ module riscv_id_stage
     `ifdef FORMAL
     `VTX_REGISTER_PORTS_RAISE(cprs_snoop)
     `endif
-    .cprs_init                       ( id_cprs_init                 ), // Initialise back to zero.
+    .cprs_init                       ( id_cprs_init              ), // Initialise back to zero.
     .cprs_init_done                  ( cprs_init_done            ), // Initialise back to zero.
     .crs1_ren                        ( crs1_ren                  ), // Port 1 read enable
     .crs1_addr                       ( crs1_addr                 ), // Port 1 address
