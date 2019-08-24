@@ -163,11 +163,16 @@ module riscv_id_stage
     output logic [ 3:0] id_crd1,          // MP Instruction destination register 1
     output logic [ 3:0] id_crd2,          // MP Instruction destination register 2
 
-    input logic  [ 3:0] crd_wen,          // CPR Port 4 write enable
-    input logic  [ 3:0] crd_addr,         // CPR Port 4 address
-    input logic  [31:0] crd_wdata,        // CPR Port 4 write data
+    input  logic [ 3:0] crd_wen,          // CPR Port 4 write enable
+    input  logic [ 3:0] crd_addr,         // CPR Port 4 address
+    input  logic [31:0] crd_wdata,        // CPR Port 4 write data
 
-    input logic         malu_rdm_in_rs,   // source destination registers in rs1/rs2
+    output logic [ 4:0] id_rd,            // GPR destination register
+    output logic [ 4:0] id_rs1,           // GPR source register
+    output logic        id_wb_h,          // Halfword index (load/store)
+    output logic        id_wb_b,          // Byte index (load/store)
+
+    input  logic        malu_rdm_in_rs,   // source destination registers in rs1/rs2
 
     // APU
     output logic                        apu_en_ex_o,

@@ -213,6 +213,8 @@ module riscv_core
   logic [15:0] id_subclass;    // Instruction subclass.
   logic [ 2:0] id_pw;          // Instruction pack width.
   logic [31:0] id_imm;         // Decoded immediate.
+  logic [ 4:0] id_rd;            // GPR destination register
+  logic [ 4:0] id_rs1;           // GPR source register
   logic        id_wb_h;        // Halfword index (load/store)
   logic        id_wb_b;        // Byte index (load/store)
 
@@ -700,9 +702,13 @@ module riscv_core
     .crd_wdata                    ( crd_wdata            ), // CPR Port 4 write data
     .crd_addr                     ( crd_addr             ), // CPR Port 4 address
 
-    .id_crd                       ( id_crd               ), // Instruction destination register  
+    .id_crd                       ( id_crd               ), // Instruction destination register
     .id_crd1                      ( id_crd1              ), // MP Instruction destination register 1
     .id_crd2                      ( id_crd2              ), // MP Instruction destination register 2
+    .id_rd                        ( id_rd                ), // GPR destination register
+    .id_rs1                       ( id_rs1               ), // GPR source register
+    .id_wb_h                      ( id_wb_h              ), // Halfword index (load/store)
+    .id_wb_b                      ( id_wb_b              ), // Byte index (load/store)
 
     .malu_rdm_in_rs               ( malu_rdm_in_rs       ), // Source destiation registers in rs1/rs2
 
