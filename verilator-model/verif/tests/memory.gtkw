@@ -1,0 +1,92 @@
+[*]
+[*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
+[*] Fri Aug 23 10:07:33 2019
+[*]
+[dumpfile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/model.vcd"
+[dumpfile_mtime] "Fri Aug 23 09:12:49 2019"
+[dumpfile_size] 265446
+[savefile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/debugging.gtkw"
+[timestart] 34
+[size] 1920 1181
+[pos] -1 -1
+*-2.259713 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.top.
+[treeopen] TOP.top.riscv_core_i.
+[treeopen] TOP.top.riscv_core_i.ex_stage_i.
+[treeopen] TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.
+[treeopen] TOP.top.riscv_core_i.id_stage_i.
+[sst_width] 313
+[signals_width] 318
+[sst_expanded] 1
+[sst_vpaned_height] 353
+@28
+TOP.clk_i
+TOP.top.riscv_core_i.id_stage_i.illegal_insn_dec
+TOP.top.riscv_core_i.ex_stage_i.ex_ready_o
+TOP.top.riscv_core_i.ex_stage_i.ex_valid_o
+@22
+TOP.top.riscv_core_i.if_stage_i.instr_rdata_i[127:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_decoder.encoded[31:0]
+@28
+TOP.top.riscv_core_i.id_stage_i.xcrypto_decoder.dec_ld_liu
+TOP.top.riscv_core_i.id_stage_i.xcrypto_decoder.dec_ld_hiu
+TOP.top.riscv_core_i.id_stage_i.xcrypto_decoder.dec_st_w
+TOP.top.riscv_core_i.id_stage_i.xcrypto_decoder.dec_ld_w
+@23
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.id_imm[31:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.is_mov_insn
+@22
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.result_cmov[31:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.is_bitwise_insn
+@22
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.result_bitwise[31:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.is_parith_insn
+@22
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.result_parith[31:0]
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_palu.palu_cpr_rd_wdata[31:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.mem_ivalid
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.single_mem
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.is_sw
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.is_lw
+@22
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.cop_mem_addr[31:0]
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.cop_mem_wdata[31:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.cop_mem_wen
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.mem_txn_error
+TOP.top.riscv_core_i.ex_stage_i.i_scarv_cop_mem.mem_txn_good
+TOP.top.riscv_core_i.load_store_unit_i.data_we_ex_i
+@22
+TOP.top.riscv_core_i.load_store_unit_i.data_wdata_ex_i[31:0]
+@28
+TOP.top.riscv_core_i.load_store_unit_i.data_reg_offset_ex_i[1:0]
+TOP.top.riscv_core_i.load_store_unit_i.data_sign_ext_ex_i
+@22
+TOP.top.riscv_core_i.load_store_unit_i.data_rdata_ex_o[31:0]
+@28
+TOP.top.riscv_core_i.load_store_unit_i.data_req_ex_i
+@22
+TOP.top.riscv_core_i.load_store_unit_i.operand_a_ex_i[31:0]
+TOP.top.riscv_core_i.load_store_unit_i.operand_b_ex_i[31:0]
+@28
+TOP.top.riscv_core_i.load_store_unit_i.addr_useincr_ex_i
+@22
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(0)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(0)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(0)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(0)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(1)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(1)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(1)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(1)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(2)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(2)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(2)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(2)[7:0]
+[pattern_trace] 1
+[pattern_trace] 0
