@@ -154,7 +154,7 @@ module riscv_id_stage
     output logic [31:0] id_imm,           // Decoded immediate.
 
     output logic [31:0] gpr_rs1,          // GPR source register
-    output logic [32:0] gpr_rs2,          // GPR source register
+    output logic [31:0] gpr_rs2,          // GPR source register
     output logic [31:0] crs1_rdata,       // Instruction source register 1
     output logic [31:0] crs2_rdata,       // Instruction source register 2
     output logic [31:0] crs3_rdata,       // Instruction source register 3
@@ -295,6 +295,13 @@ module riscv_id_stage
   logic        regb_used_dec;
   logic        regc_used_dec;
 
+  logic        main_uses_rega;
+  logic        main_uses_regb;
+
+  logic        xcrypto_uses_rega;
+  logic        xcrypto_uses_regb;
+  logic        xcrypto_writes_regd;
+
   logic        branch_taken_ex;
   logic [1:0]  jump_in_id;
   logic [1:0]  jump_in_dec;
@@ -310,20 +317,11 @@ module riscv_id_stage
   // XCrypto signals
 
   logic        id_cprs_init;        // xc.init decoded
-  logic        cprs_init;           // xc.init being executed.
   logic        cprs_init_done;      // xc.init being executed.
 
   logic [ 3:0] id_crs1;             // Instruction source register 1
   logic [ 3:0] id_crs2;             // Instruction source register 2
   logic [ 3:0] id_crs3;             // Instruction source register 3
-
-  logic [ 3:0] id_crd;              // Instruction destination register
-  logic [ 3:0] id_crd1;             // MP Instruction destination register 1
-  logic [ 3:0] id_crd2;             // MP Instruction destination register 2
-  logic [ 4:0] id_rd;               // GPR destination register
-  logic [ 4:0] id_rs1;              // GPR source register
-  logic        id_wb_h;             // Halfword index (load/store)
-  logic        id_wb_b;             // Byte index (load/store)
 
   logic        crs1_ren = 1'b1;     // Port 1 read enable
   logic [ 3:0] crs1_addr;           // Port 1 address
@@ -556,6 +554,9 @@ module riscv_id_stage
   // Used for prepost load/store and multiplier
   assign regfile_alu_waddr_id = regfile_alu_waddr_mux_sel ?
                                 regfile_waddr_id : regfile_addr_ra_id;
+
+  assign rega_used_dec = (main_uses_rega | xcrypto_uses_rega);
+  assign regb_used_dec = (main_uses_regb | xcrypto_uses_regb);
 
   // Forwarding control signals
   assign reg_d_ex_is_reg_a_id  = (regfile_waddr_ex_o     == regfile_addr_ra_id) && (rega_used_dec == 1'b1) && (regfile_addr_ra_id != '0);
@@ -1033,8 +1034,8 @@ module riscv_id_stage
   );
 
   assign dbg_reg_rdata_o = regfile_data_rc_id;
-  assign gpr_rs1 = regfile_data_ra_id;
-  assign gpr_rs2 = regfile_data_rb_id;
+  assign gpr_rs1 = operand_a_fw_id;
+  assign gpr_rs2 = operand_b_fw_id;
 
 
   ///////////////////////////////////////////////
@@ -1072,8 +1073,8 @@ module riscv_id_stage
     .ecall_insn_o                    ( ecall_insn_dec            ),
     .pipe_flush_o                    ( pipe_flush_dec            ),
 
-    .rega_used_o                     ( rega_used_dec             ),
-    .regb_used_o                     ( regb_used_dec             ),
+    .rega_used_o                     ( main_uses_a               ),
+    .regb_used_o                     ( main_uses_b               ),
     .regc_used_o                     ( regc_used_dec             ),
 
     .reg_fp_a_o                      ( regfile_fp_a              ),
@@ -1179,8 +1180,10 @@ module riscv_id_stage
     .id_rd                           ( id_rd                     ), // GPR destination register
     .id_rs1                          ( id_rs1                    ), // GPR source register
     .id_imm                          ( id_imm                    ), // Decoded immediate.
-    .id_wb_h                         ( id_wb_h                   ),
-    .id_wb_b                         ( id_wb_b                   )
+    .id_wb_h                         ( id_wb_h                   ), // Halfword index (load/store)
+    .id_wb_b                         ( id_wb_b                   ), // Byte index (load/store)
+    .rega_used_o                     ( xcrypto_uses_rega         ), // ri5cy forwarding signal
+    .regb_used_o                     ( xcrypto_uses_regb         )  // ri5cy forwarding signal
   );
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;

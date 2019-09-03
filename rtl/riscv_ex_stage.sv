@@ -496,6 +496,7 @@ module riscv_ex_stage
   `include "scarv_cop_common.vh"
 
   logic        fu_done;           // instruction finished executing
+  logic        fu_valid;          // instruction started executing
 
   logic        palu_ivalid;       // Valid instruction input
   logic        palu_idone;        // Instruction complete
@@ -731,9 +732,13 @@ module riscv_ex_stage
     .rng_cpr_rd_wdata ( rng_cpr_rd_wdata  ) // Writeback data
   );
 
-  assign  fu_done = mem_idone  || palu_idone || malu_idone ||
-                    rng_idone  || aes_idone  || sha3_idone ||
-                    perm_idone;
+  assign  fu_valid = mem_ivalid  || palu_ivalid || malu_ivalid ||
+                     rng_ivalid  || aes_ivalid  || sha3_ivalid ||
+                     perm_ivalid;
+
+  assign  fu_done  = mem_idone  || palu_idone || malu_idone ||
+                     rng_idone  || aes_idone  || sha3_idone ||
+                     perm_idone;
 
 
   ///////////////////////////////////////
@@ -767,9 +772,9 @@ module riscv_ex_stage
   // depend on ex_ready.
   assign ex_ready_o = (~apu_stall & alu_ready & mult_ready & lsu_ready_ex_i
                        & wb_ready_i & ~wb_contention & ~cprs_init
-                       & (~mem_ivalid | mem_idone)) | (branch_in_ex_i);
+                       & (~fu_valid | fu_done)) | (branch_in_ex_i);
   assign ex_valid_o = (apu_valid | alu_en_i | mult_en_i | csr_access_i | lsu_en_i)
                        & (alu_ready & mult_ready & lsu_ready_ex_i &
-                       & (~mem_ivalid | mem_idone) & wb_ready_i & ~cprs_init);
+                       & (~fu_valid | fu_done) & wb_ready_i & ~cprs_init);
 
 endmodule

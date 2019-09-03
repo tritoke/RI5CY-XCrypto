@@ -25,6 +25,7 @@ CXX = g++
 LD = g++
 AS = riscv32-unknown-elf-as
 OBJC = riscv32-unknown-elf-objcopy
+OBJD = riscv32-unknown-elf-objdump
 LN = ln
 
 # Testbench
@@ -152,6 +153,14 @@ unit:
 	$(AS) $(PROG) -march=rv32ix -o $(OBJ)
 	$(OBJC) --dump-section .text=$(BIN) $(OBJ)
 
+.PHONY: table
+table: $(PROG)
+	$(OBJD) -dr $(OBJ) \
+	| pcregrep -o1 '\s+\S+\s+([0-9a-f]+\s+\S+)' \
+	| tr "[:lower:]" "[:upper:]" \
+	| sort \
+	| uniq \
+	> table
 
 .PHONY: clean
 clean:
