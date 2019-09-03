@@ -25,6 +25,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+
 `include "apu_macros.sv"
 
 import riscv_defines::*;
@@ -1344,7 +1345,9 @@ module riscv_decoder
             12'h000:  // ECALL
             begin
               // environment (system) call
-              ecall_insn_o  = 1'b1;
+              //ecall_insn_o  = 1'b1;
+              // hacky way to get verilator to play nice with gdbserver2 
+              ebrk_insn_o  = 1'b1;
             end
 
             12'h001:  // ebreak

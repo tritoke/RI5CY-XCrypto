@@ -35,7 +35,11 @@ output wire [ 4:0] id_rd           , // GPR destination register
 output wire [ 4:0] id_rs1          , // GPR source register
 output wire [31:0] id_imm          , // Decoded immediate.
 output wire        id_wb_h         , // Halfword index (load/store)
-output wire        id_wb_b           // Byte index (load/store)
+output wire        id_wb_b         , // Byte index (load/store)
+
+output wire        rega_used_o     , // ri5cy forwarding signal
+output wire        regb_used_o     , // ri5cy forwarding signal
+output wire        gpr_write         // ri5cy forwarding signal
 
 );
 
@@ -316,13 +320,20 @@ assign id_imm =
     {32{imm_sh_px   }} & {27'b0, dec_arg_cshamt                           } |
     {32{imm_sh_mp   }} & {26'b0, dec_arg_cmshamt                          } ;
 
-wire indexed_ldst = dec_ldr_w  || dec_ldr_hu || dec_ldr_bu || 
-                    dec_str_w  || dec_str_h  || dec_str_b  ;
+wire indexed_ldst   = dec_ldr_w  || dec_ldr_hu || dec_ldr_bu || 
+                      dec_str_w  || dec_str_h  || dec_str_b  ;
 
-assign id_wb_h = indexed_ldst ? dec_arg_b0[1] : dec_arg_cc ;
+assign id_wb_h      = indexed_ldst ? dec_arg_b0[1] : dec_arg_cc ;
 
-assign id_wb_b = indexed_ldst ? dec_arg_b0[0] :
-                 imm_ld       ? dec_arg_cd    :
-                                dec_arg_ca    ;
+assign id_wb_b      = indexed_ldst ? dec_arg_b0[0] :
+                      imm_ld       ? dec_arg_cd    :
+                                     dec_arg_ca    ;
+
+assign rega_used_o  = class_packed_arith  || class_sha3 ||
+                      class_loadstore     || class_mp;
+
+assign regb_used_o  = class_sha3          || class_loadstore;
+
+assign gpr_write    = dec_gpr2xcr;
 
 endmodule
