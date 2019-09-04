@@ -11,10 +11,8 @@ _start:
     # clear registers for mem test
     xc.init
 
-    xc.ld.liu c0, 0xFFFF
-    xc.ld.hiu c0, 0xAAAA
-   #xc.ld.liu c0, 0x3412
-   #xc.ld.hiu c0, 0x7856
+    xc.ld.liu c0, 0x3412
+    xc.ld.hiu c0, 0x7856
 
     # store value in memory
     xc.st.h c0, (0), 0x200(x0)

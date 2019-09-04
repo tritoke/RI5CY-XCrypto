@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
-[*] Wed Sep  4 14:04:14 2019
+[*] Wed Sep  4 16:06:08 2019
 [*]
 [dumpfile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/model.vcd"
-[dumpfile_mtime] "Wed Sep  4 13:28:27 2019"
-[dumpfile_size] 398308
+[dumpfile_mtime] "Wed Sep  4 16:03:53 2019"
+[dumpfile_size] 394022
 [savefile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/debugging.gtkw"
-[timestart] 119
+[timestart] 156
 [size] 1920 1181
-[pos] -1 -788
-*-2.259713 165 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-2.259713 167 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
 [treeopen] TOP.top.ram_i.
@@ -24,7 +24,6 @@
 [sst_expanded] 1
 [sst_vpaned_height] 490
 @28
-TOP.clk_i
 TOP.top.riscv_core_i.id_stage_i.illegal_insn_dec
 TOP.top.riscv_core_i.id_stage_i.riscv_illegal
 TOP.top.riscv_core_i.id_stage_i.xcrypto_illegal
@@ -69,6 +68,8 @@ TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.rdata_a_o[31:0
 @200
 -
 -GPR port B
+@29
+TOP.clk_i
 @28
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.we_b_i
 @2022
@@ -108,6 +109,13 @@ TOP.top.riscv_core_i.id_stage_i.regfile_alu_waddr_ex_o[5:0]
 @22
 TOP.top.riscv_core_i.ex_stage_i.alu_i.operand_a_i[31:0]
 TOP.top.riscv_core_i.ex_stage_i.alu_i.operand_b_i[31:0]
+@2028
+^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/alu_operands
+TOP.top.riscv_core_i.id_stage_i.alu_op_a_mux_sel[2:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.apu_valid
+@22
+TOP.top.riscv_core_i.ex_stage_i.alu_i.adder_result[31:0]
 @200
 -
 -Forwarded values
@@ -119,23 +127,21 @@ TOP.top.riscv_core_i.id_stage_i.operand_c_fw_id[31:0]
 -
 -Important signals for forwarding
 @2028
-^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
+^4 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
 TOP.top.riscv_core_i.id_stage_i.operand_a_fw_mux_sel[1:0]
-^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
+^4 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
 TOP.top.riscv_core_i.id_stage_i.operand_b_fw_mux_sel[1:0]
-^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
-TOP.top.riscv_core_i.id_stage_i.operand_c_fw_mux_sel[1:0]
 @28
 TOP.top.riscv_core_i.id_stage_i.controller_i.regfile_we_wb_i
 @22
 TOP.top.riscv_core_i.regfile_wdata[31:0]
 TOP.top.riscv_core_i.id_stage_i.regfile_wdata_wb_i[31:0]
-@2023
+@2022
 ^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.regfile_waddr_id[5:0]
 @28
 TOP.top.riscv_core_i.ex_stage_i.n_cop_wen
-@2024
+@2022
 ^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.ex_stage_i.n_cop_waddr[4:0]
 @22
@@ -146,13 +152,10 @@ TOP.top.riscv_core_i.ex_stage_i.n_cop_wdata[31:0]
 @28
 TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_a_id
 TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_b_id
-TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_c_id
 TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_a_id
 TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_b_id
-TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_c_id
 TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_a_id
 TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_b_id
-TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_c_id
 @2022
 ^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.regfile_waddr_ex_o[5:0]
@@ -164,11 +167,8 @@ TOP.top.riscv_core_i.id_stage_i.regfile_alu_waddr_fw_i[5:0]
 TOP.top.riscv_core_i.id_stage_i.regfile_addr_ra_id[5:0]
 ^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.regfile_addr_rb_id[5:0]
-^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
-TOP.top.riscv_core_i.id_stage_i.regfile_addr_rc_id[5:0]
 @28
 TOP.top.riscv_core_i.id_stage_i.rega_used_dec
 TOP.top.riscv_core_i.id_stage_i.regb_used_dec
-TOP.top.riscv_core_i.id_stage_i.regc_used_dec
 [pattern_trace] 1
 [pattern_trace] 0

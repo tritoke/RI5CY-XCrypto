@@ -244,6 +244,10 @@ module riscv_ex_stage
       if(regfile_alu_we_i & ~apu_en_i) begin
         wb_contention = 1'b1;
       end
+    end else if (n_cop_wen) begin
+      regfile_alu_we_fw_o    = n_cop_wen;
+      regfile_alu_waddr_fw_o = n_cop_waddr;
+      regfile_alu_wdata_fw_o = n_cop_wdata;
     end else begin
       regfile_alu_we_fw_o      = regfile_alu_we_i & ~apu_en_i; // private fpu incomplete?
       regfile_alu_waddr_fw_o   = regfile_alu_waddr_i;
@@ -260,17 +264,15 @@ module riscv_ex_stage
   always_comb
   begin
     regfile_we_wb_o    = 1'b0;
-    regfile_waddr_wb_o = (n_cop_wen ? n_cop_waddr : regfile_waddr_lsu);
-    regfile_wdata_wb_o = (n_cop_wen ? n_cop_wdata : lsu_rdata_i);
+    regfile_waddr_wb_o = regfile_waddr_lsu;
+    regfile_wdata_wb_o = lsu_rdata_i;
     wb_contention_lsu  = 1'b0;
 
-    if (n_cop_wen) begin
+    if (regfile_we_lsu) begin
       regfile_we_wb_o = 1'b1;
-    end else if (regfile_we_lsu) begin
-      regfile_we_wb_o = 1'b1;
-      if (apu_valid & (!apu_singlecycle & !apu_multicycle)) begin
-         wb_contention_lsu = 1'b1;
-//         $error("%t, wb-contention", $time);
+    if (apu_valid & (!apu_singlecycle & !apu_multicycle)) begin
+      wb_contention_lsu = 1'b1;
+//    $error("%t, wb-contention", $time);
       end
     // APU two-cycle operations are written back on LSU port
     end else if (apu_valid & (!apu_singlecycle & !apu_multicycle)) begin
