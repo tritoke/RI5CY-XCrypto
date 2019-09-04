@@ -81,34 +81,37 @@ module riscv_ex_stage
   output logic        mult_multicycle_o,
 
   // FPU signals
-  input  logic [C_CMD-1:0]            fpu_op_i,
-  input  logic [C_PC-1:0]             fpu_prec_i,
-  output logic [C_FFLAG-1:0]          fpu_fflags_o,
-  output logic                        fpu_fflags_we_o,
+  input  logic [C_CMD-1:0]   fpu_op_i,
+  input  logic [C_PC-1:0]    fpu_prec_i,
+  output logic [C_FFLAG-1:0] fpu_fflags_o,
+  output logic               fpu_fflags_we_o,
 
   // XCrypto signals
-  input  logic        cprs_init,       // init executing
+  input  logic        xcrypto_valid,  // valid xcrypto instruction is executing
+  input  logic        cprs_init,      // init executing
 
-  input  logic [ 8:0] id_class,        // Instruction class.
-  input  logic [15:0] id_subclass,     // Instruction subclass.
-  input  logic [ 2:0] id_pw,           // Instruction pack width.
-  input  logic [31:0] id_imm,          // Decoded immediate.
-  input  logic        id_wb_h,         // Halfword index (load/store)
-  input  logic        id_wb_b,         // Byte index (load/store)
+  input  logic [ 8:0] id_class,       // Instruction class.
+  input  logic [15:0] id_subclass,    // Instruction subclass.
+  input  logic [ 2:0] id_pw,          // Instruction pack width.
+  input  logic [31:0] id_imm,         // Decoded immediate.
+  input  logic        id_wb_h,        // Halfword index (load/store)
+  input  logic        id_wb_b,        // Byte index (load/store)
 
-  input  logic [31:0] gpr_rs1,         // GPR rs1
-  input  logic [31:0] gpr_rs2,         // GPR rs1
-  input  logic [31:0] crs1_rdata,      // CPR Port 1 read data
-  input  logic [31:0] crs2_rdata,      // CPR Port 2 read data
-  input  logic [31:0] crs3_rdata,      // CPR Port 3 read data
+  input  logic [31:0] gpr_rs1,        // GPR rs1
+  input  logic [31:0] gpr_rs2,        // GPR rs1
+  input  logic [31:0] crs1_rdata,     // CPR Port 1 read data
+  input  logic [31:0] crs2_rdata,     // CPR Port 2 read data
+  input  logic [31:0] crs3_rdata,     // CPR Port 3 read data
 
-  output logic [ 3:0] crd_wen,         // CPR Port 4 write enable
-  output logic [ 3:0] crd_addr,        // CPR Port 4 address
-  output logic [31:0] crd_wdata,       // CPR Port 4 write data
+  output logic [ 3:0] crd_wen,        // CPR Port 4 write enable
+  output logic [ 3:0] crd_addr,       // CPR Port 4 address
+  output logic [31:0] crd_wdata,      // CPR Port 4 write data
 
-  input  logic [ 3:0] id_crd,          // Instruction destination register
-  input  logic [ 3:0] id_crd1,         // MP Instruction destination register 1
-  input  logic [ 3:0] id_crd2,         // MP Instruction destination register 2
+  input  logic [ 3:0] id_crd,         // Instruction destination register
+  input  logic [ 3:0] id_crd1,        // MP Instruction destination register 1
+  input  logic [ 3:0] id_crd2,        // MP Instruction destination register 2
+
+  input  logic [ 4:0] id_rd,          // GPR destination register
 
   output logic        malu_rdm_in_rs,  // Source destination registers in rs1/rs2
 
@@ -207,6 +210,10 @@ module riscv_ex_stage
   logic           mult_ready;
   logic           fpu_busy;
 
+  // XCrypto signals
+  logic        n_cop_wen;    // GPR write enable
+  logic [ 4:0] n_cop_waddr;  // GPR destination register address
+  logic [31:0] n_cop_wdata;  // GPR write data
 
   // APU signals
   logic           apu_valid;
@@ -254,10 +261,12 @@ module riscv_ex_stage
   begin
     regfile_we_wb_o    = 1'b0;
     regfile_waddr_wb_o = regfile_waddr_lsu;
-    regfile_wdata_wb_o = lsu_rdata_i;
+    regfile_wdata_wb_o = (xcrypto_valid ? n_cop_wdata : lsu_rdata_i);
     wb_contention_lsu  = 1'b0;
 
-    if (regfile_we_lsu) begin
+    if (xcrypto_valid & n_cop_wen) begin
+      regfile_we_wb_o = 1'b1;
+    end else if (regfile_we_lsu) begin
       regfile_we_wb_o = 1'b1;
       if (apu_valid & (!apu_singlecycle & !apu_multicycle)) begin
          wb_contention_lsu = 1'b1;
@@ -536,6 +545,12 @@ module riscv_ex_stage
   logic [ 3:0] perm_cpr_rd_ben;   // Writeback byte enable
   logic [31:0] perm_cpr_rd_wdata; // Writeback data
 
+  //
+  // Functional unit dispatch
+  //
+  //  Send instructions to FU based on the decoded id_class.
+  //
+
   assign palu_ivalid = 
     ( id_class[SCARV_COP_ICLASS_PACKED_ARITH] ||
       id_class[SCARV_COP_ICLASS_MOVE        ] ||
@@ -552,6 +567,12 @@ module riscv_ex_stage
   assign rng_ivalid   = id_class[SCARV_COP_ICLASS_RANDOM];
 
   assign perm_ivalid  = id_class[SCARV_COP_ICLASS_PERMUTE];
+
+  //
+  // CPR Writeback data selection
+  //
+  //  CPR writeback muxing from the functional units.
+  //
 
   assign crd_wen   = palu_cpr_rd_ben |
                      malu_cpr_rd_ben |
@@ -732,6 +753,32 @@ module riscv_ex_stage
     .rng_cpr_rd_wdata ( rng_cpr_rd_wdata  ) // Writeback data
   );
 
+  //
+  // GPR Writeback data and instruction result selection
+  //
+  //  Control writeback data for the GPRs, and the result of each
+  //  instruction.
+  //
+
+  assign n_cop_waddr = id_rd;
+
+  assign n_cop_wen   = 
+      (id_class[SCARV_COP_ICLASS_MOVE]    &&
+       id_subclass[SCARV_COP_SCLASS_XCR2GPR]   )  ||
+      (id_class[SCARV_COP_ICLASS_SHA3  ]          )  ||
+      (id_class[SCARV_COP_ICLASS_RANDOM]  &&
+       id_subclass[SCARV_COP_SCLASS_RTEST]     )  ||
+      (id_class[SCARV_COP_ICLASS_MP]      &&
+       (id_subclass[SCARV_COP_SCLASS_MEQU] ||
+        id_subclass[SCARV_COP_SCLASS_MLTE] ||
+        id_subclass[SCARV_COP_SCLASS_MGTE] ) )   ;
+
+  assign n_cop_wdata = 
+      id_class[SCARV_COP_ICLASS_MOVE  ] ? palu_cpr_rd_wdata : 
+      id_class[SCARV_COP_ICLASS_SHA3  ] ? sha3_cpr_rd_wdata : 
+      id_class[SCARV_COP_ICLASS_RANDOM] ? rng_cpr_rd_wdata  : 
+                                          malu_cpr_rd_wdata ;
+
   assign  fu_valid = mem_ivalid  || palu_ivalid || malu_ivalid ||
                      rng_ivalid  || aes_ivalid  || sha3_ivalid ||
                      perm_ivalid;
@@ -755,9 +802,9 @@ module riscv_ex_stage
     begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
-        regfile_we_lsu    <= regfile_we_i;
-        if (regfile_we_i) begin
-          regfile_waddr_lsu <= regfile_waddr_i;
+        regfile_we_lsu    <= (xcrypto_valid ? n_cop_wen : regfile_we_i);
+        if ( (xcrypto_valid ? n_cop_wen : regfile_we_i) ) begin
+          regfile_waddr_lsu <= (xcrypto_valid ? n_cop_waddr : regfile_waddr_i);
         end
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,

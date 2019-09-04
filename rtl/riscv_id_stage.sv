@@ -1073,8 +1073,8 @@ module riscv_id_stage
     .ecall_insn_o                    ( ecall_insn_dec            ),
     .pipe_flush_o                    ( pipe_flush_dec            ),
 
-    .rega_used_o                     ( main_uses_a               ),
-    .regb_used_o                     ( main_uses_b               ),
+    .rega_used_o                     ( main_uses_rega            ),
+    .regb_used_o                     ( main_uses_rega            ),
     .regc_used_o                     ( regc_used_dec             ),
 
     .reg_fp_a_o                      ( regfile_fp_a              ),
