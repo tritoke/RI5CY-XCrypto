@@ -11,8 +11,10 @@ _start:
     # clear registers for mem test
     xc.init
 
-    xc.ld.liu c0, 0x3412
-    xc.ld.hiu c0, 0x7856
+    xc.ld.liu c0, 0xFFFF
+    xc.ld.hiu c0, 0xAAAA
+   #xc.ld.liu c0, 0x3412
+   #xc.ld.hiu c0, 0x7856
 
     # store value in memory
     xc.st.h c0, (0), 0x200(x0)
@@ -34,19 +36,24 @@ _start:
 
     # c2 == 0
 
+    xc.ld.w c0, 0x200(zero)
+
     li t0, 0x100
     li t1, 0x100
-    xc.ldr.w c0, t0, t1
+    xc.ldr.w c1, t0, t1
+    # c0 == 0x12345678
+
 
     # clear registers for forwarding test 2
+    xc.init
 
     # c3 == 0x12345678
 
-    xc.ld.liu  c1, 0x3412
-    xc.xcr2gpr a0, c1
+    xc.ld.liu  c0, 0x3412
+    xc.xcr2gpr a0, c0
     add a1, a0, zero
-    xc.gpr2xcr c2, a1
-    xc.gpr2xcr c3, a0
+    xc.gpr2xcr c1, a1
+    xc.gpr2xcr c2, a0
 
     # a1 == 0x00001234
 
@@ -80,6 +87,8 @@ _start:
 
     xc.ld.liu c0, 0x3412
     xc.ld.hiu c0, 0x7856
+    xc.ld.liu c1, 0x3412
+    xc.ld.hiu c1, 0x7856
 
     # flip order of all nibbles
     xc.prot.i w, c1, c1, 16

@@ -260,11 +260,11 @@ module riscv_ex_stage
   always_comb
   begin
     regfile_we_wb_o    = 1'b0;
-    regfile_waddr_wb_o = regfile_waddr_lsu;
-    regfile_wdata_wb_o = (xcrypto_valid ? n_cop_wdata : lsu_rdata_i);
+    regfile_waddr_wb_o = (n_cop_wen ? n_cop_waddr : regfile_waddr_lsu);
+    regfile_wdata_wb_o = (n_cop_wen ? n_cop_wdata : lsu_rdata_i);
     wb_contention_lsu  = 1'b0;
 
-    if (xcrypto_valid & n_cop_wen) begin
+    if (n_cop_wen) begin
       regfile_we_wb_o = 1'b1;
     end else if (regfile_we_lsu) begin
       regfile_we_wb_o = 1'b1;
@@ -802,9 +802,9 @@ module riscv_ex_stage
     begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
-        regfile_we_lsu    <= (xcrypto_valid ? n_cop_wen : regfile_we_i);
-        if ( (xcrypto_valid ? n_cop_wen : regfile_we_i) ) begin
-          regfile_waddr_lsu <= (xcrypto_valid ? n_cop_waddr : regfile_waddr_i);
+        regfile_we_lsu    <= regfile_we_i;
+        if (regfile_we_i) begin
+          regfile_waddr_lsu <= regfile_waddr_i;
         end
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,

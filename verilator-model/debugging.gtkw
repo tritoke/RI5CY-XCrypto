@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
-[*] Wed Sep  4 09:24:22 2019
+[*] Wed Sep  4 14:04:14 2019
 [*]
 [dumpfile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/model.vcd"
-[dumpfile_mtime] "Wed Sep  4 09:22:11 2019"
-[dumpfile_size] 361347
+[dumpfile_mtime] "Wed Sep  4 13:28:27 2019"
+[dumpfile_size] 398308
 [savefile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/debugging.gtkw"
-[timestart] 63
+[timestart] 119
 [size] 1920 1181
-[pos] -961 -1
-*-3.259713 23 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -788
+*-2.259713 165 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
 [treeopen] TOP.top.ram_i.
@@ -20,19 +20,20 @@
 [treeopen] TOP.top.riscv_core_i.id_stage_i.registers_i.
 [treeopen] TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.
 [sst_width] 313
-[signals_width] 318
+[signals_width] 373
 [sst_expanded] 1
-[sst_vpaned_height] 353
-@29
-TOP.clk_i
+[sst_vpaned_height] 490
 @28
+TOP.clk_i
 TOP.top.riscv_core_i.id_stage_i.illegal_insn_dec
+TOP.top.riscv_core_i.id_stage_i.riscv_illegal
+TOP.top.riscv_core_i.id_stage_i.xcrypto_illegal
 TOP.top.riscv_core_i.ex_stage_i.ex_ready_o
 TOP.top.riscv_core_i.ex_stage_i.ex_valid_o
 @22
 TOP.top.riscv_core_i.pc_id[31:0]
 @2022
-^1 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/table
+^1 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/instructions
 TOP.top.riscv_core_i.id_stage_i.instr[31:0]
 @200
 -
@@ -41,7 +42,7 @@ TOP.top.riscv_core_i.id_stage_i.instr[31:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(0)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(0)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(0)[7:0]
-TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(0)[7:0]
+TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(0)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(1)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(1)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(1)[7:0]
@@ -50,29 +51,35 @@ TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(2)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(2)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(2)[7:0]
 TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(2)[7:0]
-TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_0(3)[7:0]
-TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_1(3)[7:0]
-TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_2(3)[7:0]
-TOP.top.riscv_core_i.id_stage_i.xcrypto_registers.cprs_3(3)[7:0]
 @200
 -
 -GPR port A
 @28
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.we_a_i
-@22
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.waddr_a_i[5:0]
+@22
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.wdata_a_i[31:0]
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.raddr_a_i[5:0]
+@22
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.rdata_a_o[31:0]
 @200
 -
 -GPR port B
 @28
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.we_b_i
-@22
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.waddr_b_i[5:0]
+@22
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.wdata_b_i[31:0]
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.raddr_b_i[5:0]
+@22
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.rdata_b_o[31:0]
 @200
 -
@@ -90,8 +97,78 @@ TOP.top.riscv_core_i.id_stage_i.regfile_we_id
 TOP.top.riscv_core_i.id_stage_i.regfile_alu_we_id
 TOP.top.riscv_core_i.id_stage_i.regfile_alu_we_ex_o
 TOP.top.riscv_core_i.id_stage_i.regfile_we_ex_o
-@22
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.regfile_waddr_ex_o[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.regfile_alu_waddr_ex_o[5:0]
+@200
+-
+-ALU
+@22
+TOP.top.riscv_core_i.ex_stage_i.alu_i.operand_a_i[31:0]
+TOP.top.riscv_core_i.ex_stage_i.alu_i.operand_b_i[31:0]
+@200
+-
+-Forwarded values
+@22
+TOP.top.riscv_core_i.id_stage_i.operand_a_fw_id[31:0]
+TOP.top.riscv_core_i.id_stage_i.operand_b_fw_id[31:0]
+TOP.top.riscv_core_i.id_stage_i.operand_c_fw_id[31:0]
+@200
+-
+-Important signals for forwarding
+@2028
+^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
+TOP.top.riscv_core_i.id_stage_i.operand_a_fw_mux_sel[1:0]
+^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
+TOP.top.riscv_core_i.id_stage_i.operand_b_fw_mux_sel[1:0]
+^3 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/forwarding
+TOP.top.riscv_core_i.id_stage_i.operand_c_fw_mux_sel[1:0]
+@28
+TOP.top.riscv_core_i.id_stage_i.controller_i.regfile_we_wb_i
+@22
+TOP.top.riscv_core_i.regfile_wdata[31:0]
+TOP.top.riscv_core_i.id_stage_i.regfile_wdata_wb_i[31:0]
+@2023
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_waddr_id[5:0]
+@28
+TOP.top.riscv_core_i.ex_stage_i.n_cop_wen
+@2024
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.ex_stage_i.n_cop_waddr[4:0]
+@22
+TOP.top.riscv_core_i.ex_stage_i.n_cop_wdata[31:0]
+@200
+-
+-Forwarding
+@28
+TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_a_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_b_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_ex_is_reg_c_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_a_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_b_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_wb_is_reg_c_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_a_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_b_id
+TOP.top.riscv_core_i.id_stage_i.reg_d_alu_is_reg_c_id
+@2022
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_waddr_ex_o[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_waddr_wb_i[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_alu_waddr_fw_i[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_addr_ra_id[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_addr_rb_id[5:0]
+^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
+TOP.top.riscv_core_i.id_stage_i.regfile_addr_rc_id[5:0]
+@28
+TOP.top.riscv_core_i.id_stage_i.rega_used_dec
+TOP.top.riscv_core_i.id_stage_i.regb_used_dec
+TOP.top.riscv_core_i.id_stage_i.regc_used_dec
 [pattern_trace] 1
 [pattern_trace] 0

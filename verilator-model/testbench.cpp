@@ -332,7 +332,7 @@ main (int    argc,
   cpu->fetch_enable_i = 1;
 
   cout << "Cycling clock to run for a few instructions" << endl;
-  clockSpin(100);
+  clockSpin(150);
 
   cout << "Halting" << endl;
 

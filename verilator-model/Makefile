@@ -160,7 +160,7 @@ table: $(PROG)
 	| tr "[:lower:]" "[:upper:]" \
 	| sort \
 	| uniq \
-	> table
+	> filters/instructions
 
 .PHONY: clean
 clean:
