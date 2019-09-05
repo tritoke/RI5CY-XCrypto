@@ -310,20 +310,11 @@ module riscv_id_stage
   // XCrypto signals
 
   logic        id_cprs_init;        // xc.init decoded
-  logic        cprs_init;           // xc.init being executed.
   logic        cprs_init_done;      // xc.init being executed.
 
   logic [ 3:0] id_crs1;             // Instruction source register 1
   logic [ 3:0] id_crs2;             // Instruction source register 2
   logic [ 3:0] id_crs3;             // Instruction source register 3
-
-  logic [ 3:0] id_crd;              // Instruction destination register
-  logic [ 3:0] id_crd1;             // MP Instruction destination register 1
-  logic [ 3:0] id_crd2;             // MP Instruction destination register 2
-  logic [ 4:0] id_rd;               // GPR destination register
-  logic [ 4:0] id_rs1;              // GPR source register
-  logic        id_wb_h;             // Halfword index (load/store)
-  logic        id_wb_b;             // Byte index (load/store)
 
   logic        crs1_ren = 1'b1;     // Port 1 read enable
   logic [ 3:0] crs1_addr;           // Port 1 address

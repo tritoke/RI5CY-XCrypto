@@ -1344,7 +1344,8 @@ module riscv_decoder
             12'h000:  // ECALL
             begin
               // environment (system) call
-              ecall_insn_o  = 1'b1;
+              // ecall_insn_o  = 1'b1;
+              ebrk_insn_o = 1'b1;
             end
 
             12'h001:  // ebreak
