@@ -882,6 +882,8 @@ module riscv_core
     .id_imm                     ( id_imm                       ), // decoded immediate.
     .id_wb_h                    ( id_wb_h                      ), // Halfword index (load/store)
     .id_wb_b                    ( id_wb_b                      ), // Byte index (load/store)
+    
+    .id_rd                      ( id_rd                        ), // GPR write port destination
 
     .gpr_rs1                    ( gpr_rs1                      ), // GPR source register 1
     .gpr_rs2                    ( gpr_rs2                      ), // GPR source register 2

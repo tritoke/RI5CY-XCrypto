@@ -291,6 +291,12 @@ module riscv_id_stage
   logic        ecall_insn_dec;
   logic        pipe_flush_dec;
 
+  logic        xcrypto_uses_rega;
+  logic        xcrypto_uses_regb;
+
+  logic        main_uses_rega;
+  logic        main_uses_regb;
+
   logic        rega_used_dec;
   logic        regb_used_dec;
   logic        regc_used_dec;
@@ -1024,8 +1030,8 @@ module riscv_id_stage
   );
 
   assign dbg_reg_rdata_o = regfile_data_rc_id;
-  assign gpr_rs1 = regfile_data_ra_id;
-  assign gpr_rs2 = regfile_data_rb_id;
+  assign gpr_rs1 = operand_a_fw_id;
+  assign gpr_rs2 = operand_b_fw_id;
 
 
   ///////////////////////////////////////////////
@@ -1063,8 +1069,8 @@ module riscv_id_stage
     .ecall_insn_o                    ( ecall_insn_dec            ),
     .pipe_flush_o                    ( pipe_flush_dec            ),
 
-    .rega_used_o                     ( rega_used_dec             ),
-    .regb_used_o                     ( regb_used_dec             ),
+    .rega_used_o                     ( main_uses_rega            ),
+    .regb_used_o                     ( main_uses_regb            ),
     .regc_used_o                     ( regc_used_dec             ),
 
     .reg_fp_a_o                      ( regfile_fp_a              ),
@@ -1171,7 +1177,9 @@ module riscv_id_stage
     .id_rs1                          ( id_rs1                    ), // GPR source register
     .id_imm                          ( id_imm                    ), // Decoded immediate.
     .id_wb_h                         ( id_wb_h                   ),
-    .id_wb_b                         ( id_wb_b                   )
+    .id_wb_b                         ( id_wb_b                   ),
+    .rega_used_o                     ( xcrypto_uses_rega         ),
+    .regb_used_o                     ( xcrypto_uses_regb         )
   );
 
   assign illegal_insn_dec = riscv_illegal & xcrypto_illegal;
@@ -1181,6 +1189,9 @@ module riscv_id_stage
   assign crs1_addr = malu_rdm_in_rs ? id_crd1 : id_crs1; 
   assign crs2_addr = malu_rdm_in_rs ? id_crd2 : id_crs2; 
   assign crs3_addr = malu_rdm_in_rs ? id_crs1 : id_crs3; 
+
+  assign rega_used_dec = (xcrypto_uses_rega | main_uses_rega);
+  assign regb_used_dec = (xcrypto_uses_regb | main_uses_regb);
 
   scarv_cop_cprs
   xcrypto_registers

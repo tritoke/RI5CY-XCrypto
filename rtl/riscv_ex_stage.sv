@@ -96,6 +96,8 @@ module riscv_ex_stage
   input  logic        id_wb_h,         // Halfword index (load/store)
   input  logic        id_wb_b,         // Byte index (load/store)
 
+  input  logic [ 4:0] id_rd,           // GPR write destination
+
   input  logic [31:0] gpr_rs1,         // GPR rs1
   input  logic [31:0] gpr_rs2,         // GPR rs1
   input  logic [31:0] crs1_rdata,      // CPR Port 1 read data
@@ -207,6 +209,11 @@ module riscv_ex_stage
   logic           mult_ready;
   logic           fpu_busy;
 
+  // XCrypto signals
+  logic        n_cop_wen;    // GPR write enable
+  logic [ 4:0] n_cop_waddr;  // GPR destination register address
+  logic [31:0] n_cop_wdata;  // GPR write data
+
 
   // APU signals
   logic           apu_valid;
@@ -237,6 +244,10 @@ module riscv_ex_stage
       if(regfile_alu_we_i & ~apu_en_i) begin
         wb_contention = 1'b1;
       end
+    end else if (n_cop_wen) begin
+      regfile_alu_we_fw_o    = n_cop_wen;
+      regfile_alu_waddr_fw_o = n_cop_waddr;
+      regfile_alu_wdata_fw_o = n_cop_wdata;
     end else begin
       regfile_alu_we_fw_o      = regfile_alu_we_i & ~apu_en_i; // private fpu incomplete?
       regfile_alu_waddr_fw_o   = regfile_alu_waddr_i;
@@ -496,6 +507,7 @@ module riscv_ex_stage
   `include "scarv_cop_common.vh"
 
   logic        fu_done;           // instruction finished executing
+  logic        fu_valid;          // valid instruction revcieved
 
   logic        palu_ivalid;       // Valid instruction input
   logic        palu_idone;        // Instruction complete
@@ -535,6 +547,12 @@ module riscv_ex_stage
   logic [ 3:0] perm_cpr_rd_ben;   // Writeback byte enable
   logic [31:0] perm_cpr_rd_wdata; // Writeback data
 
+  //
+  // Functional unit dispatch
+  //
+  //  Send instructions to FU based on the decoded id_class.
+  //
+
   assign palu_ivalid = 
     ( id_class[SCARV_COP_ICLASS_PACKED_ARITH] ||
       id_class[SCARV_COP_ICLASS_MOVE        ] ||
@@ -551,6 +569,12 @@ module riscv_ex_stage
   assign rng_ivalid   = id_class[SCARV_COP_ICLASS_RANDOM];
 
   assign perm_ivalid  = id_class[SCARV_COP_ICLASS_PERMUTE];
+
+  //
+  // CPR Writeback data selection
+  //
+  //  CPR writeback muxing from the functional units.
+  //
 
   assign crd_wen   = palu_cpr_rd_ben |
                      malu_cpr_rd_ben |
@@ -731,9 +755,41 @@ module riscv_ex_stage
     .rng_cpr_rd_wdata ( rng_cpr_rd_wdata  ) // Writeback data
   );
 
-  assign  fu_done = mem_idone  || palu_idone || malu_idone ||
-                    rng_idone  || aes_idone  || sha3_idone ||
-                    perm_idone;
+  //
+  // GPR Writeback data and instruction result selection
+  //
+  //  Control writeback data for the GPRs, and the result of each
+  //  instruction.
+  //
+
+  always_comb begin
+    n_cop_waddr = id_rd;
+
+    n_cop_wen   =
+        (id_class[SCARV_COP_ICLASS_MOVE]    &&
+         id_subclass[SCARV_COP_SCLASS_XCR2GPR]   )  ||
+        (id_class[SCARV_COP_ICLASS_SHA3  ]          )  ||
+        (id_class[SCARV_COP_ICLASS_RANDOM]  &&
+         id_subclass[SCARV_COP_SCLASS_RTEST]     )  ||
+        (id_class[SCARV_COP_ICLASS_MP]      &&
+         (id_subclass[SCARV_COP_SCLASS_MEQU] ||
+          id_subclass[SCARV_COP_SCLASS_MLTE] ||
+          id_subclass[SCARV_COP_SCLASS_MGTE] ) )   ;
+
+    n_cop_wdata =
+        id_class[SCARV_COP_ICLASS_MOVE  ] ? palu_cpr_rd_wdata :
+        id_class[SCARV_COP_ICLASS_SHA3  ] ? sha3_cpr_rd_wdata :
+        id_class[SCARV_COP_ICLASS_RANDOM] ? rng_cpr_rd_wdata  :
+                                            malu_cpr_rd_wdata ;
+
+    fu_done = mem_idone  || palu_idone || malu_idone ||
+              rng_idone  || aes_idone  || sha3_idone ||
+              perm_idone;
+
+    fu_valid = mem_ivalid  || palu_ivalid || malu_ivalid ||
+               rng_ivalid  || aes_ivalid  || sha3_ivalid ||
+               perm_ivalid;
+  end
 
 
   ///////////////////////////////////////
@@ -767,9 +823,9 @@ module riscv_ex_stage
   // depend on ex_ready.
   assign ex_ready_o = (~apu_stall & alu_ready & mult_ready & lsu_ready_ex_i
                        & wb_ready_i & ~wb_contention & ~cprs_init
-                       & (~mem_ivalid | mem_idone)) | (branch_in_ex_i);
+                       & (~fu_valid | fu_done)) | (branch_in_ex_i);
   assign ex_valid_o = (apu_valid | alu_en_i | mult_en_i | csr_access_i | lsu_en_i)
                        & (alu_ready & mult_ready & lsu_ready_ex_i &
-                       & (~mem_ivalid | mem_idone) & wb_ready_i & ~cprs_init);
+                       & (~fu_valid | fu_done) & wb_ready_i & ~cprs_init);
 
 endmodule

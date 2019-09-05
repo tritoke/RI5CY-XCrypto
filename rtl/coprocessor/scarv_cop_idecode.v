@@ -35,7 +35,9 @@ output wire [ 4:0] id_rd           , // GPR destination register
 output wire [ 4:0] id_rs1          , // GPR source register
 output wire [31:0] id_imm          , // Decoded immediate.
 output wire        id_wb_h         , // Halfword index (load/store)
-output wire        id_wb_b           // Byte index (load/store)
+output wire        id_wb_b         , // Byte index (load/store)
+output wire        rega_used_o     , // ri5cy forwarding signal
+output wire        regb_used_o       // ri5cy forwarding signal
 
 );
 
@@ -324,5 +326,11 @@ assign id_wb_h = indexed_ldst ? dec_arg_b0[1] : dec_arg_cc ;
 assign id_wb_b = indexed_ldst ? dec_arg_b0[0] :
                  imm_ld       ? dec_arg_cd    :
                                 dec_arg_ca    ;
+
+assign rega_used_o  = class_packed_arith  || class_sha3 ||
+                      class_loadstore     || class_mp || dec_gpr2xcr;
+
+assign regb_used_o  = class_sha3          || class_loadstore;
+
 
 endmodule
