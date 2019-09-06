@@ -744,10 +744,10 @@ module riscv_ex_stage
     .g_resetn         ( rst_n             ), // Synchronous active low reset.
     .rng_ivalid       ( rng_ivalid        ), // Valid instruction input
     .rng_idone        ( rng_idone         ), // Instruction complete
-  //`ifdef FORMAL
-  //.cop_random       ( cop_random        ), // Latest random sample value
-  //.cop_rand_sample  ( cop_rand_sample   ), // random sample value valid
-  //`endif
+    `ifdef FORMAL
+    .cop_random       ( cop_random        ), // Latest random sample value
+    .cop_rand_sample  ( cop_rand_sample   ), // random sample value valid
+    `endif
     .rng_rs1          ( crs1_rdata        ), // Source register 1
     .id_imm           ( id_imm            ), // Source immedate
     .id_subclass      ( id_subclass       ), // Instruction subclass

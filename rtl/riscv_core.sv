@@ -990,16 +990,16 @@ module riscv_core
   ////////////////////////////////////////////////////////////////////////////////////////
 
 
-  assign data_req_ex = xcrypto_valid ? cop_mem_cen : data_req_ex_id;
-  assign data_we_ex = xcrypto_valid ? cop_mem_wen : data_we_ex_id;
-  assign data_type_ex = xcrypto_valid ? 2'b00 : data_type_ex_id;
-  assign data_sign_ext_ex = xcrypto_valid ? 0 : data_sign_ext_ex_id;
-  assign data_reg_offset_ex = xcrypto_valid ? 2'b00 : data_reg_offset_ex_id;
-  assign data_misaligned_ex = xcrypto_valid ? 0 : data_misaligned_ex_id;
-  assign useincr_addr_ex = xcrypto_valid ? 0 : useincr_addr_ex_id;
-  assign data_wdata_ex = xcrypto_valid ? cop_mem_wdata : alu_operand_c_ex;   
-  assign operand_a_ex = xcrypto_valid ? cop_mem_addr : alu_operand_a_ex;
-  assign operand_b_ex = xcrypto_valid ? 0 : alu_operand_b_ex;
+  assign data_req_ex = cop_mem_cen ? cop_mem_cen : data_req_ex_id;
+  assign data_we_ex = cop_mem_cen ? cop_mem_wen : data_we_ex_id;
+  assign data_type_ex = cop_mem_cen ? 2'b00 : data_type_ex_id;
+  assign data_sign_ext_ex = cop_mem_cen ? 0 : data_sign_ext_ex_id;
+  assign data_reg_offset_ex = cop_mem_cen ? 2'b00 : data_reg_offset_ex_id;
+  assign data_misaligned_ex = cop_mem_cen ? 0 : data_misaligned_ex_id;
+  assign useincr_addr_ex = cop_mem_cen ? 0 : useincr_addr_ex_id;
+  assign data_wdata_ex = cop_mem_cen ? cop_mem_wdata : alu_operand_c_ex;   
+  assign operand_a_ex = cop_mem_cen ? cop_mem_addr : alu_operand_a_ex;
+  assign operand_b_ex = cop_mem_cen ? 0 : alu_operand_b_ex;
 
   riscv_load_store_unit  load_store_unit_i
   (

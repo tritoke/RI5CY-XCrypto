@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.94 (w)1999-2018 BSI
-[*] Thu Sep  5 11:45:15 2019
+[*] Thu Sep  5 14:44:35 2019
 [*]
 [dumpfile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/model.vcd"
-[dumpfile_mtime] "Thu Sep  5 11:43:36 2019"
-[dumpfile_size] 394367
+[dumpfile_mtime] "Thu Sep  5 14:41:30 2019"
+[dumpfile_size] 406964
 [savefile] "/home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/debugging.gtkw"
-[timestart] 155
-[size] 1920 1181
-[pos] -1 -1
-*-2.259713 167 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 71
+[size] 862 1179
+[pos] 95 -1
+*-2.259713 79 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
 [treeopen] TOP.top.ram_i.
@@ -20,7 +20,7 @@
 [treeopen] TOP.top.riscv_core_i.id_stage_i.registers_i.
 [treeopen] TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.
 [sst_width] 313
-[signals_width] 678
+[signals_width] 451
 [sst_expanded] 1
 [sst_vpaned_height] 489
 @28
@@ -29,7 +29,7 @@ TOP.top.riscv_core_i.id_stage_i.riscv_illegal
 TOP.top.riscv_core_i.id_stage_i.xcrypto_illegal
 TOP.top.riscv_core_i.ex_stage_i.ex_ready_o
 TOP.top.riscv_core_i.ex_stage_i.ex_valid_o
-@22
+@23
 TOP.top.riscv_core_i.pc_id[31:0]
 @2022
 ^1 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/instructions
@@ -60,7 +60,7 @@ TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.we_a_i
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.waddr_a_i[5:0]
 @22
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.wdata_a_i[31:0]
-@2023
+@2022
 ^2 /home/tritoke/Work/verilator/ri5cy-xcrypto/verilator-model/filters/registers
 TOP.top.riscv_core_i.id_stage_i.registers_i.riscv_register_file_i.raddr_a_i[5:0]
 @22
@@ -89,6 +89,9 @@ TOP.top.ram_i.dp_ram_i.rdata_b_o[31:0]
 @28
 TOP.top.ram_i.dp_ram_i.we_b_i
 TOP.top.ram_i.dp_ram_i.en_b_i
+@22
+TOP.top.ram_i.dp_ram_i.wdata_a_i[31:0]
+TOP.top.ram_i.dp_ram_i.wdata_b_i[31:0]
 @200
 -
 -Decode

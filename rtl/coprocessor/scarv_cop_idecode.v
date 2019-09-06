@@ -328,7 +328,7 @@ assign id_wb_b = indexed_ldst ? dec_arg_b0[0] :
                                 dec_arg_ca    ;
 
 assign rega_used_o  = class_packed_arith  || class_sha3 ||
-                      class_loadstore     || class_mp || dec_gpr2xcr;
+                      class_loadstore     || class_mp   || dec_gpr2xcr;
 
 assign regb_used_o  = class_sha3          || class_loadstore;
 

@@ -14,6 +14,10 @@ _start:
     xc.ld.liu c0, 0x3412
     xc.ld.hiu c0, 0x7856
 
+    li t0, 0x100
+    li t1, 0x0
+    bltu t0, t1, _start
+    nop
     # store value in memory
     xc.st.h c0, (0), 0x200(x0)
     xc.st.h c0, (1), 0x202(x0)

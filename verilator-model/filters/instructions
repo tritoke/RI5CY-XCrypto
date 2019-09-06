@@ -1,3 +1,5 @@
+00000013          	NOP
+00000313          	LI
 000505B3          	ADD
 10000293          	LI
 10000313          	LI
@@ -22,3 +24,4 @@
 9E8888AB          	XC.PROT.I
 BF0888AB          	XC.PROT.I
 EE00E92B          	XC.BOP
+FE62E6E3          	BLTU
